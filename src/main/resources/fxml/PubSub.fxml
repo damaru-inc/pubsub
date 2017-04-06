@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+
+<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.solace.pubsub.controller.PubSubController">
+  <columnConstraints>
+    <ColumnConstraints fillWidth="true" hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="10.0" percentWidth="0.0" prefWidth="20.0" />
+    <ColumnConstraints fillWidth="true" hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="10.0" percentWidth="0.0" prefWidth="80.0" />
+  </columnConstraints>
+  <rowConstraints>
+    <RowConstraints minHeight="20.0" percentHeight="80.0" prefHeight="20.0" vgrow="SOMETIMES" />
+  </rowConstraints>
+   <children>
+      <Label alignment="CENTER_RIGHT" contentDisplay="RIGHT" prefWidth="82.0" text="Intervals" GridPane.columnIndex="0" GridPane.halignment="RIGHT" GridPane.rowIndex="0" GridPane.valignment="CENTER">
+         <GridPane.margin>
+            <Insets right="3.0" />
+         </GridPane.margin>
+      </Label>
+      <Slider fx:id="int_m_7" blockIncrement="2.0" majorTickUnit="2.0" max="10.0" minorTickCount="1" orientation="VERTICAL" showTickLabels="true" showTickMarks="true" value="1.0" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="0">
+         <GridPane.margin>
+            <Insets left="3.0" right="3.0" />
+         </GridPane.margin>
+      </Slider>
+      <Slider fx:id="int_m_6" blockIncrement="2.0" majorTickUnit="2.0" max="10.0" minorTickCount="1" orientation="VERTICAL" showTickLabels="true" showTickMarks="true" value="1.0" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="0">
+         <GridPane.margin>
+            <Insets left="3.0" right="3.0" />
+         </GridPane.margin>
+      </Slider>
+      <Slider fx:id="int_m_5" blockIncrement="2.0" majorTickUnit="2.0" max="10.0" minorTickCount="1" orientation="VERTICAL" showTickLabels="true" showTickMarks="true" value="1.0" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.rowIndex="0">
+         <GridPane.margin>
+            <Insets left="3.0" right="3.0" />
+         </GridPane.margin>
+      </Slider>
+      <Slider fx:id="int_m_4" blockIncrement="2.0" majorTickUnit="2.0" max="10.0" minorTickCount="1" orientation="VERTICAL" showTickLabels="true" showTickMarks="true" value="1.0" GridPane.columnIndex="5" GridPane.halignment="CENTER" GridPane.rowIndex="0">
+         <GridPane.margin>
+            <Insets left="3.0" right="3.0" />
+         </GridPane.margin>
+      </Slider>
+      <Slider fx:id="int_m_3" blockIncrement="2.0" majorTickUnit="2.0" max="10.0" minorTickCount="1" orientation="VERTICAL" showTickLabels="true" showTickMarks="true" value="1.0" GridPane.columnIndex="6" GridPane.halignment="CENTER" GridPane.rowIndex="0">
+         <GridPane.margin>
+            <Insets left="3.0" right="3.0" />
+         </GridPane.margin>
+      </Slider>
+      <Slider fx:id="int_m_2" blockIncrement="2.0" majorTickUnit="2.0" max="10.0" minorTickCount="1" orientation="VERTICAL" showTickLabels="true" showTickMarks="true" value="1.0" GridPane.columnIndex="7" GridPane.halignment="CENTER" GridPane.rowIndex="0">
+         <GridPane.margin>
+            <Insets left="3.0" right="3.0" />
+         </GridPane.margin>
+      </Slider>
+      <Slider fx:id="int_m_1" blockIncrement="2.0" majorTickUnit="2.0" max="10.0" minorTickCount="1" orientation="VERTICAL" showTickLabels="true" showTickMarks="true" value="1.0" GridPane.columnIndex="8" GridPane.halignment="CENTER" GridPane.rowIndex="0">
+         <GridPane.margin>
+            <Insets left="3.0" right="3.0" />
+         </GridPane.margin>
+      </Slider>
+      <Slider fx:id="int_p_0" blockIncrement="2.0" majorTickUnit="2.0" max="10.0" minorTickCount="1" orientation="VERTICAL" showTickLabels="true" showTickMarks="true" value="1.0" GridPane.columnIndex="9" GridPane.halignment="CENTER" GridPane.rowIndex="0">
+         <GridPane.margin>
+            <Insets left="3.0" right="3.0" />
+         </GridPane.margin>
+      </Slider>
+      <Slider fx:id="int_p_1" blockIncrement="2.0" majorTickUnit="2.0" max="10.0" minorTickCount="1" orientation="VERTICAL" showTickLabels="true" showTickMarks="true" value="1.0" GridPane.columnIndex="10" GridPane.halignment="CENTER" GridPane.rowIndex="0">
+         <GridPane.margin>
+            <Insets left="3.0" right="3.0" />
+         </GridPane.margin>
+      </Slider>
+      <Slider fx:id="int_p_2" blockIncrement="2.0" majorTickUnit="2.0" max="10.0" minorTickCount="1" orientation="VERTICAL" showTickLabels="true" showTickMarks="true" value="1.0" GridPane.columnIndex="11" GridPane.halignment="CENTER" GridPane.rowIndex="0">
+         <GridPane.margin>
+            <Insets left="3.0" right="3.0" />
+         </GridPane.margin>
+      </Slider>
+      <Slider fx:id="int_p_3" blockIncrement="2.0" majorTickUnit="2.0" max="10.0" minorTickCount="1" orientation="VERTICAL" showTickLabels="true" showTickMarks="true" value="1.0" GridPane.columnIndex="12" GridPane.halignment="CENTER" GridPane.rowIndex="0">
+         <GridPane.margin>
+            <Insets left="3.0" right="3.0" />
+         </GridPane.margin>
+      </Slider>
+      <Slider fx:id="int_p_4" blockIncrement="2.0" majorTickUnit="2.0" max="10.0" minorTickCount="1" orientation="VERTICAL" showTickLabels="true" showTickMarks="true" value="1.0" GridPane.columnIndex="13" GridPane.halignment="CENTER" GridPane.rowIndex="0">
+         <GridPane.margin>
+            <Insets left="3.0" right="3.0" />
+         </GridPane.margin>
+      </Slider>
+      <Slider fx:id="int_p_5" blockIncrement="2.0" majorTickUnit="2.0" max="10.0" minorTickCount="1" orientation="VERTICAL" showTickLabels="true" showTickMarks="true" value="1.0" GridPane.columnIndex="14" GridPane.halignment="CENTER" GridPane.rowIndex="0">
+         <GridPane.margin>
+            <Insets left="3.0" right="3.0" />
+         </GridPane.margin>
+      </Slider>
+      <Slider fx:id="int_p_6" blockIncrement="2.0" majorTickUnit="2.0" max="10.0" minorTickCount="1" orientation="VERTICAL" showTickLabels="true" showTickMarks="true" value="1.0" GridPane.columnIndex="15" GridPane.halignment="CENTER" GridPane.rowIndex="0">
+         <GridPane.margin>
+            <Insets left="3.0" right="3.0" />
+         </GridPane.margin>
+      </Slider>
+      <Slider fx:id="int_p_7" blockIncrement="2.0" majorTickUnit="2.0" max="10.0" minorTickCount="1" orientation="VERTICAL" showTickLabels="true" showTickMarks="true" value="1.0" GridPane.columnIndex="16" GridPane.halignment="CENTER" GridPane.rowIndex="0">
+         <GridPane.margin>
+            <Insets left="3.0" right="3.0" />
+         </GridPane.margin>
+      </Slider>
+      <Label text="-7" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+      <Label text="-6" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+      <Label text="-5" GridPane.columnIndex="4" GridPane.rowIndex="1" />
+      <Label text="-4" GridPane.columnIndex="5" GridPane.rowIndex="1" />
+      <Label text="-3" GridPane.columnIndex="6" GridPane.rowIndex="1" />
+      <Label text="-2" GridPane.columnIndex="7" GridPane.rowIndex="1" />
+      <Label text="-1" GridPane.columnIndex="8" GridPane.rowIndex="1" />
+      <Label text="0" GridPane.columnIndex="9" GridPane.rowIndex="1" />
+      <Label text="1" GridPane.columnIndex="10" GridPane.rowIndex="1" />
+      <Label text="2" GridPane.columnIndex="11" GridPane.rowIndex="1" />
+      <Label text="3" GridPane.columnIndex="12" GridPane.rowIndex="1" />
+      <Label text="4" GridPane.columnIndex="13" GridPane.rowIndex="1" />
+      <Label text="5" GridPane.columnIndex="14" GridPane.rowIndex="1" />
+      <Label text="6" GridPane.columnIndex="15" GridPane.rowIndex="1" />
+      <Label text="7" GridPane.columnIndex="16" GridPane.rowIndex="1" />
+      <Label alignment="CENTER_RIGHT" contentDisplay="RIGHT" layoutX="183.0" layoutY="285.0" text="Notes" GridPane.halignment="RIGHT" GridPane.rowIndex="2">
+         <padding>
+            <Insets right="10.0" />
+         </padding>
+      </Label>
+      <Slider fx:id="notes" blockIncrement="1.0" majorTickUnit="10.0" max="120.0" minorTickCount="1" showTickLabels="true" showTickMarks="true" value="10.0" GridPane.columnIndex="2" GridPane.columnSpan="15" GridPane.rowIndex="2" />
+   </children>
+</GridPane>

@@ -1,0 +1,44 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+//apply plugin: 'idea'
+apply plugin: 'application'
+
+mainClassName = 'com.solace.pubsub.Main'
+
+ext {
+	solaceJCSMPVersion = '10.+'
+}
+
+jar {
+	baseName = 'pubsub'
+	version = '0.0.1-SNAPSHOT'
+	manifest {
+		attributes "Main-Class": "$mainClassName"
+	}
+
+	from {
+		configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+	}
+}
+
+sourceCompatibility = 1.8
+
+repositories {
+	mavenCentral()
+	mavenLocal()
+}
+
+dependencies {
+	compile('org.controlsfx:controlsfx:8.40.12')
+	compile('org.springframework:spring-context:4.3.6.RELEASE')
+	compile('org.apache.logging.log4j:log4j-api:2.8')
+	compile('org.apache.logging.log4j:log4j-core:2.8')
+	compile("com.solacesystems:sol-jcsmp:${solaceJCSMPVersion}")
+	compile('io.swagger:swagger-annotations:1.5.8')
+	compile('com.squareup.okhttp:okhttp:2.7.5')
+	compile('com.squareup.okhttp:logging-interceptor:2.7.5')
+	compile('com.google.code.gson:gson:2.6.2')
+	compile('joda-time:joda-time:2.9.3')
+	compile ('junit:junit:4.12')
+}
+
