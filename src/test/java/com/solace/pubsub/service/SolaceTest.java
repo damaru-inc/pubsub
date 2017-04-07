@@ -1,4 +1,4 @@
-package com.solace.pubsub;
+package com.solace.pubsub.service;
 
 import java.util.Date;
 

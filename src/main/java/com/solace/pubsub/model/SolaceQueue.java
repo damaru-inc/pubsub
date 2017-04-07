@@ -1,21 +1,31 @@
 package com.solace.pubsub.model;
 
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+
 public class SolaceQueue {
 
-	private String name;
-	private String topic;
+	private StringProperty name;
+	private StringProperty topic;
+	
+	public SolaceQueue(String name, String topic) {
+		this.name = new SimpleStringProperty(name);
+		this.topic = new SimpleStringProperty(topic);
+	}
 	
 	public String getName() {
+		return name.get();
+	}
+
+	public StringProperty getNameProperty() {
 		return name;
 	}
-	public void setName(String name) {
-		this.name = name;
-	}
+
 	public String getTopic() {
-		return topic;
-	}
-	public void setTopic(String topic) {
-		this.topic = topic;
+		return topic.get();
 	}
 	
+	public StringProperty getTopicProperty() {
+		return topic;
+	}
 }

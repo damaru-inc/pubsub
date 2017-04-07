@@ -1,5 +1,6 @@
 package com.solace.pubsub;
 
+import com.solace.pubsub.controller.ConfigController;
 import com.solace.pubsub.controller.MainController;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -18,10 +19,13 @@ import org.apache.logging.log4j.Logger;
 public class Main extends Application {
 
     private Logger log = LogManager.getLogger(Main.class);
+    
+    private static double HEIGHT = 800.0;
+    private static double WIDTH = 600.0;
     private AnnotationConfigApplicationContext springContext;
     private Parent rootNode;
-    @Autowired
     MainController mainController;
+    ConfigController configController;
 
     public static void main(final String[] args) {
         Application.launch(args);
@@ -42,12 +46,13 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         log.debug("start start");
-        stage.setScene(new Scene(rootNode));
-        MainController controller = (MainController) springContext.getBean("mainController");
-        log.debug("controller: " + controller);
-        if (controller != null) {
-            controller.setRootNode(springContext, rootNode);
+        stage.setScene(new Scene(rootNode, WIDTH, HEIGHT));
+        mainController = (MainController) springContext.getBean("mainController");
+        log.debug("controller: " + mainController);
+        if (mainController != null) {
+        	mainController.setRootNode(springContext, rootNode);
         }
+        configController = (ConfigController) springContext.getBean("configController");
         stage.show();
         log.debug("start end");
     }
@@ -55,6 +60,7 @@ public class Main extends Application {
     @Override
     public void stop() throws Exception {
         log.debug("Called stop.");
+        configController.close();
         Platform.exit();
     }
 

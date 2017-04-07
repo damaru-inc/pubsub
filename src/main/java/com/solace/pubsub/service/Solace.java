@@ -18,6 +18,7 @@ import io.swagger.client.model.MsgVpnQueue;
 import io.swagger.client.model.MsgVpnQueue.PermissionEnum;
 import io.swagger.client.model.MsgVpnQueueResponse;
 import io.swagger.client.model.MsgVpnQueueSubscription;
+import io.swagger.client.model.MsgVpnQueuesResponse;
 import io.swagger.client.model.SempError;
 import io.swagger.client.model.SempMetaOnlyResponse;
 
@@ -109,6 +110,14 @@ public class Solace {
 			handleError(e);
 		}
 	}
+	
+	public void deleteQueues() {
+	    List<MsgVpnQueue> queues = getQueues();
+
+	    for (MsgVpnQueue queue : queues) {
+            deleteQueue(queue.getQueueName());
+        }
+	}
 
 	public MsgVpnQueue getQueue(String queueName) {
 		MsgVpnQueue queue = null;
@@ -121,26 +130,35 @@ public class Solace {
 		return queue;
 	}
 
-	public void createQueue(String queueName, String topic) {
-		try {
-			MsgVpnQueue queue = getQueue(queueName);
-			if (queue == null) {
-				log.info("Creating queue: " + queueName);
-				queue = new MsgVpnQueue();
-				queue.setQueueName(queueName);
-				queue.setIngressEnabled(true);
-				queue.setEgressEnabled(true);
-				queue.permission(PermissionEnum.CONSUME);
-				MsgVpnQueueSubscription subscription = new MsgVpnQueueSubscription();
-				subscription.setSubscriptionTopic(topic);
-				sempApiInstance.createMsgVpnQueue(msgVpnName, queue, null);
-				sempApiInstance.createMsgVpnQueueSubscription(msgVpnName, queueName, subscription, null);
-			}
-			queue.setEgressEnabled(true);
+    public List<MsgVpnQueue> getQueues() {
+        List<MsgVpnQueue> queues = null;
+        try {
+            MsgVpnQueuesResponse resp = sempApiInstance.getMsgVpnQueues(msgVpnName, 100, null, null, null);
+            queues = resp.getData();
+            for (MsgVpnQueue queue : queues) {
+                log.info("Retrieved queue " + queue.getQueueName());
+            }
+        } catch (ApiException e) {
+            handleError(e);
+        }
+        return queues;
+    }
+
+	public void createQueue(String queueName, String topic) throws ApiException {
+		MsgVpnQueue queue = getQueue(queueName);
+		if (queue == null) {
+			log.info("Creating queue: " + queueName);
+			queue = new MsgVpnQueue();
+			queue.setQueueName(queueName);
 			queue.setIngressEnabled(true);
-		} catch (ApiException e) {
-			handleError(e);
-			return;
+			queue.setEgressEnabled(true);
+			queue.permission(PermissionEnum.CONSUME);
+			MsgVpnQueueSubscription subscription = new MsgVpnQueueSubscription();
+			subscription.setSubscriptionTopic(topic);
+			sempApiInstance.createMsgVpnQueue(msgVpnName, queue, null);
+			log.info("Creating queue subscription: " + topic);
+			sempApiInstance.createMsgVpnQueueSubscription(msgVpnName, queueName, subscription, null);
+			log.info("Finished creating queue and subscription.");
 		}
 	}
 

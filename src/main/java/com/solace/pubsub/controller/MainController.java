@@ -31,7 +31,7 @@ public class MainController implements Initializable {
     Logger log = LogManager.getLogger(MainController.class);
     private VBox rootNode;
     @FXML
-    ComboBox moduleCombo;
+    ComboBox<String> moduleCombo;
     Object controller;
 
     @Override
