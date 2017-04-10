@@ -28,4 +28,8 @@ public class SolaceQueue {
 	public StringProperty getTopicProperty() {
 		return topic;
 	}
+	
+	public String toString() {
+	    return topic.getValue() + "(" + name.getValue() + ")";
+	}
 }

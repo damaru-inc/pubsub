@@ -3,7 +3,6 @@ package com.solace.pubsub.model;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.solace.pubsub.service.Solace;
 import com.solacesystems.jcsmp.BytesXMLMessage;
 import com.solacesystems.jcsmp.ConsumerFlowProperties;
 import com.solacesystems.jcsmp.FlowReceiver;
@@ -18,6 +17,9 @@ import com.solacesystems.jcsmp.Topic;
 import com.solacesystems.jcsmp.XMLMessageListener;
 import com.solacesystems.jcsmp.XMLMessageProducer;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+
 public class SolaceClient {
 	private Logger log = LogManager.getLogger(SolaceClient.class);
 	
@@ -28,6 +30,7 @@ public class SolaceClient {
 	private JCSMPSession session;
 	private XMLMessageProducer producer;
 	private TextMessage lastReceivedMessage;
+	ObservableList<String> messages = FXCollections.observableArrayList();
 	private FlowReceiver receiver;
 	
 	public SolaceClient(String host, String vpnName, String username, String password) throws JCSMPException {
@@ -59,7 +62,7 @@ public class SolaceClient {
 			if (receivedMessage instanceof TextMessage) {
 				lastReceivedMessage = (TextMessage) receivedMessage;
 				log.info("Received message : " + lastReceivedMessage.getText());
-				receivedMessage.ackMessage();
+				messages.add(lastReceivedMessage.getText());
 			} else {
 				log.error("Received message that was not a TextMessage: " + receivedMessage.dump());
 			}
@@ -87,11 +90,19 @@ public class SolaceClient {
 	}
 	
 	public void subscribe(String queueName) throws JCSMPException {
-		Queue testQueue = JCSMPFactory.onlyInstance().createQueue(Solace.QUEUE_NAME);
+		Queue queue = JCSMPFactory.onlyInstance().createQueue(queueName);
+
 		ConsumerFlowProperties props = new ConsumerFlowProperties();
-		props.setAckMode(JCSMPProperties.SUPPORTED_MESSAGE_ACK_CLIENT);
-		props.setEndpoint(testQueue);
-		//receiver = session.createFlow(testQueue, null, new SimpleMessageListener());
+        props.setEndpoint(queue);
+		
+		// By default, the api auto-acks the messages. This overrides that.
+		//props.setAckMode(JCSMPProperties.SUPPORTED_MESSAGE_ACK_CLIENT);
+        
+        if (receiver != null) {
+            receiver.close();
+        }
+        
+ 		
 		receiver = session.createFlow(new SimpleMessageListener(), props);
 		receiver.start();		
 	}
@@ -118,5 +129,13 @@ public class SolaceClient {
 	public String getUsername() {
 		return username;
 	}
+	
+	public void clearMessages() {
+	    messages.clear();
+	}
+
+    public ObservableList<String> getMessages() {
+        return messages;
+    }
 
 }

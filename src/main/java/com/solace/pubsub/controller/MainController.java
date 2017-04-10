@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.ResourceBundle;
 
 /**
@@ -32,7 +33,8 @@ public class MainController implements Initializable {
     private VBox rootNode;
     @FXML
     ComboBox<String> moduleCombo;
-    Object controller;
+    ApplicationContext springContext;
+    HashMap<String, Node> moduleMap = new HashMap<>();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -54,13 +56,13 @@ public class MainController implements Initializable {
 
     public void setRootNode(ApplicationContext springContext, Parent rootNode) throws IOException {
         this.rootNode = (VBox) rootNode;
-
+        this.springContext = springContext;
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/Config.fxml"));
         fxmlLoader.setControllerFactory(springContext::getBean);
-        Node rangeModule = fxmlLoader.load();
+        Node node = fxmlLoader.load();
         ObservableList<Node> children = this.rootNode.getChildren();
-        children.set(1, rangeModule);
-        controller = fxmlLoader.getController();
+        children.set(1, node);
+        moduleMap.put("Config", node);
     }
 
     public void moduleSelected() {
@@ -72,25 +74,33 @@ public class MainController implements Initializable {
         @Override
         public void changed(ObservableValue ov, String old, String newOne) {
             log.debug(String.format("changed: %s %s " + ov, old, newOne));
-            String resourceName = "/fxml/" + newOne + ".fxml";
-            log.debug("Changing module to " + resourceName);
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(resourceName));
-            Node module = null;
-            try {
-                module = fxmlLoader.load();
-            } catch (IOException e) {
-                log.error("Failed to load module resourceName", e);
-                quit(null);
+            Node node = moduleMap.get(newOne);
+
+            if (node == null) {
+                String resourceName = "/fxml/" + newOne + ".fxml";
+                log.debug("Changing module to " + resourceName);
+                FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(resourceName));
+                fxmlLoader.setControllerFactory(springContext::getBean);
+                try {
+                    node = fxmlLoader.load();
+                    moduleMap.put(newOne, node);
+                } catch (Exception e) {
+                    log.error("Failed to load module resourceName", e);
+                    quit(null);
+                }
             }
             ObservableList<Node> children = rootNode.getChildren();
-            children.set(1, module);
-            controller = fxmlLoader.getController();
+            children.set(1, node);
         }
+    }
+
+    // Call this when we know we can connect to a router.
+    public void enableModules() {
+        moduleCombo.setDisable(false);
     }
 
     public void quit(ActionEvent event) {
         Platform.exit();
     }
-
 
 }

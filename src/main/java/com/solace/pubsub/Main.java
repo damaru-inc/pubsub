@@ -1,5 +1,6 @@
 package com.solace.pubsub;
 
+import com.solace.pubsub.controller.ClientController;
 import com.solace.pubsub.controller.ConfigController;
 import com.solace.pubsub.controller.MainController;
 import javafx.application.Application;
@@ -24,8 +25,12 @@ public class Main extends Application {
     private static double WIDTH = 600.0;
     private AnnotationConfigApplicationContext springContext;
     private Parent rootNode;
+    @Autowired
     MainController mainController;
+    @Autowired
     ConfigController configController;
+    @Autowired
+    ClientController clientController;
 
     public static void main(final String[] args) {
         Application.launch(args);
@@ -35,7 +40,7 @@ public class Main extends Application {
     public void init() throws Exception {
         log.debug("init start");
         springContext = new AnnotationConfigApplicationContext();
-        springContext.register(Main.class);
+        springContext.scan("com.solace.pubsub");
         springContext.refresh();
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/Main.fxml"));
         fxmlLoader.setControllerFactory(springContext::getBean);
@@ -52,6 +57,7 @@ public class Main extends Application {
         if (mainController != null) {
         	mainController.setRootNode(springContext, rootNode);
         }
+        clientController = (ClientController) springContext.getBean("clientController");
         configController = (ConfigController) springContext.getBean("configController");
         stage.show();
         log.debug("start end");
@@ -60,7 +66,7 @@ public class Main extends Application {
     @Override
     public void stop() throws Exception {
         log.debug("Called stop.");
-        configController.close();
+        clientController.close();
         Platform.exit();
     }
 

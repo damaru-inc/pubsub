@@ -9,7 +9,7 @@
    <children>
       <HBox prefHeight="100.0" prefWidth="200.0">
          <children>
-            <ComboBox fx:id="moduleCombo" onAction="#moduleSelected" prefWidth="150.0" />
+            <ComboBox fx:id="moduleCombo" disable="true" onAction="#moduleSelected" prefWidth="150.0" />
          </children>
       </HBox>
       <AnchorPane prefHeight="200.0" prefWidth="200.0" />

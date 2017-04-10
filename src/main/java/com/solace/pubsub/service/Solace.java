@@ -1,12 +1,11 @@
 package com.solace.pubsub.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
-
-import com.google.gson.Gson;
 
 import io.swagger.client.ApiClient;
 import io.swagger.client.ApiException;
@@ -18,25 +17,24 @@ import io.swagger.client.model.MsgVpnQueue;
 import io.swagger.client.model.MsgVpnQueue.PermissionEnum;
 import io.swagger.client.model.MsgVpnQueueResponse;
 import io.swagger.client.model.MsgVpnQueueSubscription;
+import io.swagger.client.model.MsgVpnQueueSubscriptionsResponse;
 import io.swagger.client.model.MsgVpnQueuesResponse;
-import io.swagger.client.model.SempError;
-import io.swagger.client.model.SempMetaOnlyResponse;
 
 @Component
 public class Solace {
 	private Logger log = LogManager.getLogger(Solace.class);
 
-	public static final String QUEUE_NAME = "testQueue";
-	public static final String TOPIC = "test/topic";
 	private MsgVpnApi sempApiInstance;
-	private String msgVpnName = "default";
+	public static final String MSG_VPN_NAME = "default";
+	private String host;
 
 	public void init(String host, String username, String password) {
-		ApiClient thisClient = new ApiClient();
-		thisClient.setBasePath("http://" + host + ":8080/SEMP/v2/config");
-		thisClient.setUsername(username);
-		thisClient.setPassword(password);
-		sempApiInstance = new MsgVpnApi(thisClient);
+	    this.host = host;
+		ApiClient client = new ApiClient();
+		client.setBasePath("http://" + host + ":8080/SEMP/v2/config");
+		client.setUsername(username);
+		client.setPassword(password);
+		sempApiInstance = new MsgVpnApi(client);
 	}
 
 	public boolean test() {
@@ -52,11 +50,11 @@ public class Solace {
 
 	public void listClientUsernames() throws ApiException {
 		// Ignore paging and selectors in this example. So set to null.
-		MsgVpnClientUsernamesResponse resp = sempApiInstance.getMsgVpnClientUsernames(msgVpnName, null, null, null,
+		MsgVpnClientUsernamesResponse resp = sempApiInstance.getMsgVpnClientUsernames(MSG_VPN_NAME, null, null, null,
 				null);
 		List<MsgVpnClientUsername> clientUsernamesList = resp.getData();
 		for (MsgVpnClientUsername user : clientUsernamesList) {
-			log.info("user: " + user.getClientUsername() + " " + user.getPassword());
+			log.info("user: " + user.getClientUsername() + " password: " + user.getPassword());
 		}
 		log.info("Retrieved " + clientUsernamesList.size() + " Client Usernames.");
 	}
@@ -64,7 +62,7 @@ public class Solace {
 	public MsgVpnClientUsername getClientUsername(String username) {
 		MsgVpnClientUsername ret = null;
 		try {
-			MsgVpnClientUsernameResponse resp = sempApiInstance.getMsgVpnClientUsername(msgVpnName, username, null);
+			MsgVpnClientUsernameResponse resp = sempApiInstance.getMsgVpnClientUsername(MSG_VPN_NAME, username, null);
 			ret = resp.getData();
 			System.out.println("getClientUsername: " + ret);
 		} catch (ApiException e) {
@@ -85,7 +83,7 @@ public class Solace {
 			newClientUsername.setEnabled(true);
 			MsgVpnClientUsernameResponse resp = null;
 			try {
-				resp = sempApiInstance.createMsgVpnClientUsername(msgVpnName, newClientUsername, null);
+				resp = sempApiInstance.createMsgVpnClientUsername(MSG_VPN_NAME, newClientUsername, null);
 			} catch (ApiException e) {
 				handleError(e);
 				return;
@@ -105,7 +103,7 @@ public class Solace {
 
 	public void deleteQueue(String queueName) {
 		try {
-			sempApiInstance.deleteMsgVpnQueue(msgVpnName, queueName);
+			sempApiInstance.deleteMsgVpnQueue(MSG_VPN_NAME, queueName);
 		} catch (ApiException e) {
 			handleError(e);
 		}
@@ -122,7 +120,7 @@ public class Solace {
 	public MsgVpnQueue getQueue(String queueName) {
 		MsgVpnQueue queue = null;
 		try {
-			MsgVpnQueueResponse resp = sempApiInstance.getMsgVpnQueue(msgVpnName, queueName, null);
+			MsgVpnQueueResponse resp = sempApiInstance.getMsgVpnQueue(MSG_VPN_NAME, queueName, null);
 			queue = resp.getData();
 		} catch (ApiException e) {
 			handleError(e);
@@ -133,7 +131,7 @@ public class Solace {
     public List<MsgVpnQueue> getQueues() {
         List<MsgVpnQueue> queues = null;
         try {
-            MsgVpnQueuesResponse resp = sempApiInstance.getMsgVpnQueues(msgVpnName, 100, null, null, null);
+            MsgVpnQueuesResponse resp = sempApiInstance.getMsgVpnQueues(MSG_VPN_NAME, 100, null, null, null);
             queues = resp.getData();
             for (MsgVpnQueue queue : queues) {
                 log.info("Retrieved queue " + queue.getQueueName());
@@ -142,6 +140,26 @@ public class Solace {
             handleError(e);
         }
         return queues;
+    }
+
+    public List<MsgVpnQueueSubscription> getSubscriptions() {
+        List<MsgVpnQueueSubscription> ret = new ArrayList<>();
+        try {
+            MsgVpnQueuesResponse resp = sempApiInstance.getMsgVpnQueues(MSG_VPN_NAME, 100, null, null, null);
+            List<MsgVpnQueue> queues = resp.getData();
+            for (MsgVpnQueue queue : queues) {
+                MsgVpnQueueSubscriptionsResponse sresp = sempApiInstance.getMsgVpnQueueSubscriptions(MSG_VPN_NAME, 
+                        queue.getQueueName(), 100, null, null, null);
+                List<MsgVpnQueueSubscription> subscriptions = sresp.getData();
+                for (MsgVpnQueueSubscription sub : subscriptions) {
+                    log.info("Subscription: " + sub.getQueueName() + " " + sub.getSubscriptionTopic());
+                    ret.add(sub);
+                }                
+            }
+        } catch (ApiException e) {
+            handleError(e);
+        }
+        return ret;
     }
 
 	public void createQueue(String queueName, String topic) throws ApiException {
@@ -155,9 +173,9 @@ public class Solace {
 			queue.permission(PermissionEnum.CONSUME);
 			MsgVpnQueueSubscription subscription = new MsgVpnQueueSubscription();
 			subscription.setSubscriptionTopic(topic);
-			sempApiInstance.createMsgVpnQueue(msgVpnName, queue, null);
+			sempApiInstance.createMsgVpnQueue(MSG_VPN_NAME, queue, null);
 			log.info("Creating queue subscription: " + topic);
-			sempApiInstance.createMsgVpnQueueSubscription(msgVpnName, queueName, subscription, null);
+			sempApiInstance.createMsgVpnQueueSubscription(MSG_VPN_NAME, queueName, subscription, null);
 			log.info("Finished creating queue and subscription.");
 		}
 	}
@@ -166,4 +184,9 @@ public class Solace {
 		String responseString = ae.getResponseBody();
 		log.error("ApiException: " + responseString);
 	}
+	
+	public String getHost() {
+	    return host;
+	}
+	
 }
