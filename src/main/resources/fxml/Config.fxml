@@ -39,7 +39,7 @@
             <Insets right="20.0" />
          </GridPane.margin>
       </Label>
-      <TextField fx:id="host" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="1">
+      <TextField fx:id="hostField" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="1">
          <padding>
             <Insets left="20.0" right="20.0" />
          </padding>
@@ -65,7 +65,7 @@
             <Insets right="20.0" />
          </padding>
       </Label>
-      <TextField fx:id="username" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="2">
+      <TextField fx:id="usernameField" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="2">
          <GridPane.margin>
             <Insets left="20.0" right="20.0" />
          </GridPane.margin>
@@ -73,7 +73,7 @@
             <Insets left="20.0" />
          </padding>
       </TextField>
-      <TextField fx:id="password" GridPane.columnIndex="4" GridPane.columnSpan="2" GridPane.rowIndex="2">
+      <TextField fx:id="passwordField" GridPane.columnIndex="4" GridPane.columnSpan="2" GridPane.rowIndex="2">
          <GridPane.margin>
             <Insets left="20.0" right="20.0" />
          </GridPane.margin>
@@ -81,12 +81,12 @@
             <Insets left="20.0" />
          </padding>
       </TextField>
-      <Button mnemonicParsing="false" onAction="#test" text="Test" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="1">
+      <Button mnemonicParsing="false" onAction="#connect" text="Connect" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="1">
          <GridPane.margin>
             <Insets />
          </GridPane.margin>
       </Button>
-      <Label fx:id="testResult" text="test results label" GridPane.columnIndex="4" GridPane.columnSpan="2" GridPane.halignment="LEFT" GridPane.rowIndex="1">
+      <Label fx:id="connectResult" text="test results label" GridPane.columnIndex="4" GridPane.columnSpan="2" GridPane.halignment="LEFT" GridPane.rowIndex="1">
          <GridPane.margin>
             <Insets left="20.0" />
          </GridPane.margin>

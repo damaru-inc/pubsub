@@ -1,18 +1,23 @@
 package com.solace.pubsub;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+
 import com.solace.pubsub.controller.ClientController;
 import com.solace.pubsub.controller.ConfigController;
 import com.solace.pubsub.controller.MainController;
+
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.*;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 
 @Configuration
@@ -58,7 +63,9 @@ public class Main extends Application {
         	mainController.setRootNode(springContext, rootNode);
         }
         clientController = (ClientController) springContext.getBean("clientController");
-        configController = (ConfigController) springContext.getBean("configController");
+        //configController = (ConfigController) springContext.getBean("configController");
+        stage.getIcons().add( new Image( Main.class.getResourceAsStream( "/squarelogo.png" )));
+        stage.getIcons().add( new Image( Main.class.getResourceAsStream( "/solace-logo-500px.png" )));
         stage.show();
         log.debug("start end");
     }

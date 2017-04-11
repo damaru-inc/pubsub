@@ -1,8 +1,13 @@
 package com.solace.pubsub.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.solacesystems.jcsmp.Browser;
+import com.solacesystems.jcsmp.BrowserProperties;
 import com.solacesystems.jcsmp.BytesXMLMessage;
 import com.solacesystems.jcsmp.ConsumerFlowProperties;
 import com.solacesystems.jcsmp.FlowReceiver;
@@ -17,124 +22,124 @@ import com.solacesystems.jcsmp.Topic;
 import com.solacesystems.jcsmp.XMLMessageListener;
 import com.solacesystems.jcsmp.XMLMessageProducer;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-
 public class SolaceClient {
-	private Logger log = LogManager.getLogger(SolaceClient.class);
-	
-	private String username;
-	private String password;
-	private String vpnName;
-	private String host;
-	private JCSMPSession session;
-	private XMLMessageProducer producer;
-	private TextMessage lastReceivedMessage;
-	ObservableList<String> messages = FXCollections.observableArrayList();
-	private FlowReceiver receiver;
-	
-	public SolaceClient(String host, String vpnName, String username, String password) throws JCSMPException {
-		this.host = host;
-		this.vpnName = vpnName;
-		this.username = username;
-		this.password = password;
-		connect();
-	}
-	
-	private class SimplePublisherEventHandler implements JCSMPStreamingPublishEventHandler {
-		@Override
-		public void responseReceived(String messageID) {
-			log.info("Producer received response for msg: " + messageID);
-		}
+    private Logger log = LogManager.getLogger(SolaceClient.class);
 
-		@Override
-		public void handleError(String messageID, JCSMPException e, long timestamp) {
-			log.error("Producer received error for msg: " + messageID + " - " + timestamp, e);
-		}
+    private String username;
+    private String password;
+    private String vpnName;
+    private String host;
+    private JCSMPSession session;
+    private XMLMessageProducer producer;
+    List<String> messages = new ArrayList<>();
+    private FlowReceiver receiver;
 
-	}
+    public SolaceClient(String host, String vpnName, String username, String password) throws JCSMPException {
+        this.host = host;
+        this.vpnName = vpnName;
+        this.username = username;
+        this.password = password;
+        connect();
+    }
 
-	private class SimpleMessageListener implements XMLMessageListener {
+    private class SimplePublisherEventHandler implements JCSMPStreamingPublishEventHandler {
+        @Override
+        public void responseReceived(String messageID) {
+            log.trace("Producer received response for msg: " + messageID);
+        }
 
-		@Override
-		public void onReceive(BytesXMLMessage receivedMessage) {
+        @Override
+        public void handleError(String messageID, JCSMPException e, long timestamp) {
+            log.error("Producer received error for msg: " + messageID + " - " + timestamp, e);
+        }
 
-			if (receivedMessage instanceof TextMessage) {
-				lastReceivedMessage = (TextMessage) receivedMessage;
-				log.info("Received message : " + lastReceivedMessage.getText());
-				messages.add(lastReceivedMessage.getText());
-			} else {
-				log.error("Received message that was not a TextMessage: " + receivedMessage.dump());
-			}
-		}
+    }
 
-		@Override
-		public void onException(JCSMPException e) {
-			log.error("Consumer received exception: %s%n", e);
-		}
-	}
+    private class SimpleMessageListener implements XMLMessageListener {
 
-	public void connect() throws JCSMPException {
-		final JCSMPProperties properties = new JCSMPProperties();
-		properties.setProperty(JCSMPProperties.HOST, host);
-		properties.setProperty(JCSMPProperties.VPN_NAME, vpnName);
-		properties.setProperty(JCSMPProperties.USERNAME, username);
-		properties.setProperty(JCSMPProperties.PASSWORD, password);
-		session = JCSMPFactory.onlyInstance().createSession(properties);
-		//session.connect();
-		//Queue endpoint = new Queue();
+        @Override
+        public void onReceive(BytesXMLMessage receivedMessage) {
 
-		//session.cre
-		//final XMLMessageConsumer cons = session.getMessageConsumer(new SimpleMessageListener());
-		//cons.start();
-	}
-	
-	public void subscribe(String queueName) throws JCSMPException {
-		Queue queue = JCSMPFactory.onlyInstance().createQueue(queueName);
+            if (receivedMessage instanceof TextMessage) {
+                messages.add(((TextMessage) receivedMessage).getText());
+            } else {
+                log.error("Received message that was not a TextMessage: " + receivedMessage.dump());
+            }
+        }
 
-		ConsumerFlowProperties props = new ConsumerFlowProperties();
+        @Override
+        public void onException(JCSMPException e) {
+            log.error("Consumer received exception: %s%n", e);
+        }
+    }
+
+    public void connect() throws JCSMPException {
+        final JCSMPProperties properties = new JCSMPProperties();
+        properties.setProperty(JCSMPProperties.HOST, host);
+        properties.setProperty(JCSMPProperties.VPN_NAME, vpnName);
+        properties.setProperty(JCSMPProperties.USERNAME, username);
+        properties.setProperty(JCSMPProperties.PASSWORD, password);
+        session = JCSMPFactory.onlyInstance().createSession(properties);
+    }
+
+    public void subscribe(String queueName) throws JCSMPException {
+        Queue queue = JCSMPFactory.onlyInstance().createQueue(queueName);
+
+        ConsumerFlowProperties props = new ConsumerFlowProperties();
         props.setEndpoint(queue);
-		
-		// By default, the api auto-acks the messages. This overrides that.
-		//props.setAckMode(JCSMPProperties.SUPPORTED_MESSAGE_ACK_CLIENT);
-        
+
         if (receiver != null) {
             receiver.close();
         }
-        
- 		
-		receiver = session.createFlow(new SimpleMessageListener(), props);
-		receiver.start();		
-	}
 
-	public void close() {
-		if (receiver != null) {
-			receiver.close();
-		}
-		session.closeSession();
-	}
+        receiver = session.createFlow(new SimpleMessageListener(), props);
+        receiver.start();
+    }
 
-	public void sendMessage(String topic, String message) throws JCSMPException {
-		
-		if (producer == null) {
-			producer = session.getMessageProducer(new SimplePublisherEventHandler());			
-		}
-		
-		final Topic tp = JCSMPFactory.onlyInstance().createTopic(topic);
-		TextMessage msg = JCSMPFactory.onlyInstance().createMessage(TextMessage.class);
-		msg.setText(message);
-		producer.send(msg, tp);
-	}
+    public int getMessageCount(String queueName) throws JCSMPException {
+        int ret = 0;
+        Queue queue = JCSMPFactory.onlyInstance().createQueue(queueName);
+        BrowserProperties props = new BrowserProperties();
+        props.setEndpoint(queue);
+        props.setWaitTimeout(50);
+        Browser browser = session.createBrowser(props);
+        BytesXMLMessage message = browser.getNext();
+        while (message != null) {
+            ret++;
+            message = browser.getNext();
+        }
+        browser.close();
+        return ret;
+    }
 
-	public String getUsername() {
-		return username;
-	}
-	
-	public void clearMessages() {
-	    messages.clear();
-	}
+    public void close() {
+        if (receiver != null) {
+            receiver.close();
+        }
+        session.closeSession();
+    }
 
-    public ObservableList<String> getMessages() {
+    public void sendMessage(String topic, String message) throws JCSMPException {
+
+        if (producer == null) {
+            producer = session.getMessageProducer(new SimplePublisherEventHandler());
+        }
+
+        final Topic tp = JCSMPFactory.onlyInstance().createTopic(topic);
+        TextMessage msg = JCSMPFactory.onlyInstance().createMessage(TextMessage.class);
+        msg.setText(message);
+        producer.send(msg, tp);
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void clearMessages() {
+        messages.clear();
+    }
+
+    public List<String> getMessages() {
         return messages;
     }
 

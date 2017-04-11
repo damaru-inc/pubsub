@@ -8,6 +8,7 @@ import java.util.ResourceBundle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.solace.pubsub.model.SolaceQueue;
@@ -48,21 +49,24 @@ public class ConfigController implements Initializable {
     @FXML
     Button deleteQueuesButton;
     @FXML
-    TextField host;
+    TextField hostField;
     @FXML
-    TextField password;
+    TextField passwordField;
     @FXML
     TableView<SolaceQueue> queueTableView;
     @FXML
-    Label testResult;
+    Label connectResult;
     @FXML
     ListView<String> topicListView;
     @FXML
-    TextField username;
+    TextField usernameField;
     @Autowired
     Solace solace;
     @Autowired
     MainController mainController;
+    
+    @Value("${host:192.168.133.44}")
+    String host;
 
     private ObservableList<String> topics;
     private ObservableList<SolaceQueue> solaceQueues;
@@ -73,10 +77,10 @@ public class ConfigController implements Initializable {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public void initialize(URL location, ResourceBundle resources) {
 
-        username.setText("admin");
-        password.setText("admin");
-        host.setText("192.168.133.44");
-        testResult.setText("");
+        usernameField.setText("admin");
+        passwordField.setText("admin");
+        hostField.setText(host);
+        connectResult.setText("");
 
         topics = FXCollections.observableArrayList();
         // topics.add("topics/topic1");
@@ -99,29 +103,33 @@ public class ConfigController implements Initializable {
 
     private void loadConfig() {
         List<MsgVpnQueueSubscription> subscriptions = solace.getSubscriptions();
+        solaceQueues.clear();
+        topics.clear();
         if (subscriptions != null) {
             log.info("Subscriptions: " + subscriptions.size());
             for (MsgVpnQueueSubscription sub : subscriptions) {
                 String queueName = sub.getQueueName();
                 String topic = sub.getSubscriptionTopic();
-                topics.add(topic);
+                if (!topic.contains(">") && !topic.contains("*")) {
+                    topics.add(topic);
+                }
                 solaceQueues.add(new SolaceQueue(queueName, topic));
-                log.info("test: added topic " + topic);
+                log.debug("test: added queue " + queueName);
             }
         }
     }
 
-    public void test(ActionEvent event) {
-        solace.init(host.getText(), username.getText(), password.getText());
+    public void connect(ActionEvent event) {
+        solace.init(hostField.getText(), usernameField.getText(), passwordField.getText());
         connected = solace.test();
         if (connected) {
-            testResult.setText("Connection okay.");
+            connectResult.setText("Connected");
             deleteQueuesButton.setDisable(false);
             addQueueButton.setDisable(false);
             mainController.enableModules();
             loadConfig();
         } else {
-            testResult.setText("Connection failed.");
+            connectResult.setText("Connection failed.");
         }
     }
 
