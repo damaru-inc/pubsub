@@ -7,7 +7,7 @@
 
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.solace.pubsub.controller.MainController">
    <children>
-      <HBox prefHeight="100.0" prefWidth="200.0">
+      <HBox prefWidth="200.0">
          <children>
             <ComboBox fx:id="moduleCombo" disable="true" onAction="#moduleSelected" prefWidth="150.0" />
          </children>

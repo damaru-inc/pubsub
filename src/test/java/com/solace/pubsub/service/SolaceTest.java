@@ -1,5 +1,7 @@
 package com.solace.pubsub.service;
 
+import java.io.IOException;
+import java.net.Proxy;
 import java.util.Date;
 
 import org.apache.logging.log4j.LogManager;
@@ -7,7 +9,13 @@ import org.apache.logging.log4j.Logger;
 import org.junit.Test;
 
 import com.solace.pubsub.model.SolaceClient;
-import com.solace.pubsub.service.Solace;
+import com.squareup.okhttp.Authenticator;
+import com.squareup.okhttp.Credentials;
+import com.squareup.okhttp.MediaType;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.RequestBody;
+import com.squareup.okhttp.Response;
 
 public class SolaceTest {
 
@@ -56,12 +64,57 @@ public class SolaceTest {
 		}
 	}
 	
-	@Test
+	//@Test
 	public void showConfig() throws Exception {
         Solace solace = new Solace();
         solace.init(HOST, USERNAME, PASSWORD);
         solace.getQueues();
         solace.listClientUsernames();
         solace.getSubscriptions();
+	}
+	
+	@Test
+	public void testSemp() throws Exception {
+	    String semp = "<rpc semp-version=\"soltr/8_2VMR\"><show><queue><name>queue1</name></queue></show></rpc>";
+	    MediaType JSON
+	    = MediaType.parse("application/json; charset=utf-8");
+
+	OkHttpClient client = new OkHttpClient();
+	client.setAuthenticator(new Authenticator() {
+	    public Request authenticate(Response response) throws IOException {
+            String credential = Credentials.basic("admin", "admin");
+            return response.request().newBuilder()
+                .header("Authorization", credential)
+                .build();
+          }
+
+        @Override
+        public Request authenticate(Proxy proxy, Response response) throws IOException {
+            
+            return authenticate(response);
+        }
+
+        @Override
+        public Request authenticateProxy(Proxy proxy, Response response) throws IOException {
+            return authenticate(response);
+        }
+	});
+
+	String url = "http://192.168.133.44:8080/SEMP";
+	        
+	  RequestBody body = RequestBody.create(JSON, semp);
+	  Request request = new Request.Builder()
+	      .url(url)
+	      .post(body)
+	      .build();
+	  Response response = client.newCall(request).execute();
+	  String resp = response.body().string();
+	  log.info(resp);
+	  int spooled = resp.indexOf("num-messages-spooled");
+	  int start = resp.indexOf(">", spooled);
+	  int end = resp.indexOf("<", start);
+	  String num = resp.substring(start+1, end);
+	  log.info("spooled: " + num);
+
 	}
 }

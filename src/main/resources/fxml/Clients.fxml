@@ -13,12 +13,15 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 
-<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="600.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.111" fx:controller="com.solace.pubsub.controller.ClientController">
+<GridPane minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.solace.pubsub.controller.ClientController">
   <columnConstraints>
     <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
     <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="100.0" />
       <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="100.0" />
       <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="100.0" />
+      <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="100.0" />
+      <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="100.0" />
+      <ColumnConstraints hgrow="NEVER" minWidth="10.0" />
   </columnConstraints>
   <rowConstraints>
     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
@@ -27,52 +30,97 @@
     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
       <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
       <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
       <RowConstraints maxHeight="1.7976931348623157E308" minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS" />
+      <RowConstraints />
   </rowConstraints>
    <children>
       <Label text="Sender" GridPane.halignment="CENTER" />
-      <Button mnemonicParsing="false" onAction="#send" text="Send" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
-      <Button mnemonicParsing="false" onAction="#clear" text="Clear" GridPane.halignment="CENTER" GridPane.rowIndex="4" />
-      <Label text="Receiver" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
-      <Separator prefWidth="200.0" GridPane.columnSpan="2" GridPane.rowIndex="2" />
-      <ListView fx:id="receivedMessagesListView" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="3" GridPane.rowSpan="2">
+      <Label text="Num Messages" GridPane.columnIndex="3" GridPane.halignment="CENTER" />
+      <Label text="Delay (ms)" GridPane.columnIndex="4" GridPane.halignment="CENTER" />
+      <TextField fx:id="numMessages" GridPane.columnIndex="3" GridPane.rowIndex="1">
          <GridPane.margin>
-            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
          </GridPane.margin>
-      </ListView>
-      <ComboBox fx:id="sendTopicComboBox" editable="true" prefWidth="150.0" promptText="Topic" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-      <ComboBox fx:id="subscribeComboBox" prefWidth="150.0" promptText="Select a queue" GridPane.columnIndex="1" GridPane.rowIndex="5" />
-      <Button mnemonicParsing="false" onAction="#subscribe" text="Subscribe" GridPane.halignment="CENTER" GridPane.rowIndex="5" />
+      </TextField>
+      <TextField fx:id="delay" GridPane.columnIndex="4" GridPane.rowIndex="1">
+         <GridPane.margin>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+         </GridPane.margin>
+      </TextField>
       <Label fx:id="sendResult" text="sendResult" GridPane.columnIndex="1">
          <GridPane.margin>
             <Insets left="20.0" />
          </GridPane.margin>
       </Label>
-      <Label fx:id="subscribeResult" text="subscribeResult" GridPane.columnIndex="2" GridPane.rowIndex="5">
+      <Button mnemonicParsing="false" onAction="#send" text="Send" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
+      <ComboBox fx:id="sendTopicComboBox" editable="true" promptText="Topic" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="1">
+         <GridPane.margin>
+            <Insets left="10.0" />
+         </GridPane.margin></ComboBox>
+      <Separator prefWidth="200.0" GridPane.columnSpan="2" GridPane.rowIndex="2" />
+      
+      <Label text="Receiver" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
+      <ListView fx:id="receivedMessagesListView1" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="3" GridPane.rowSpan="2">
+         <GridPane.margin>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+         </GridPane.margin>
+      </ListView>
+      <Button mnemonicParsing="false" onAction="#clear1" text="Clear" GridPane.halignment="CENTER" GridPane.rowIndex="4" />
+      <Button mnemonicParsing="false" onAction="#subscribe1" text="Subscribe" GridPane.halignment="CENTER" GridPane.rowIndex="5" />
+      <ComboBox fx:id="subscribeComboBox1" promptText="Select a queue" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="5">
+         <GridPane.margin>
+            <Insets left="10.0" />
+         </GridPane.margin></ComboBox>
+      <Label fx:id="subscribeResult1" text="subscribeResult1" GridPane.columnIndex="3" GridPane.columnSpan="2" GridPane.rowIndex="5">
          <GridPane.margin>
             <Insets left="20.0" />
          </GridPane.margin>
       </Label>
-      <TableView fx:id="browserTableView" maxHeight="1.7976931348623157E308" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="6" GridPane.vgrow="ALWAYS">
+      <Separator prefWidth="200.0" GridPane.columnSpan="2" GridPane.rowIndex="6" />
+      
+      <Label text="Receiver" GridPane.halignment="CENTER" GridPane.rowIndex="7" />
+      <ListView fx:id="receivedMessagesListView2" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="7" GridPane.rowSpan="2">
+         <GridPane.margin>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+         </GridPane.margin>
+      </ListView>
+      <Button mnemonicParsing="false" onAction="#clear2" text="Clear" GridPane.halignment="CENTER" GridPane.rowIndex="8" />
+      <Button mnemonicParsing="false" onAction="#subscribe2" text="Subscribe" GridPane.halignment="CENTER" GridPane.rowIndex="9" />
+      <ComboBox fx:id="subscribeComboBox2" promptText="Select a queue" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="9">
+         <GridPane.margin>
+            <Insets left="10.0" />
+         </GridPane.margin></ComboBox>
+      <Label fx:id="subscribeResult2" text="subscribeResult2" GridPane.columnIndex="3" GridPane.columnSpan="2" GridPane.rowIndex="9">
+         <GridPane.margin>
+            <Insets left="20.0" />
+         </GridPane.margin>
+         <padding>
+            <Insets left="10.0" />
+         </padding>
+      </Label>
+      <Separator prefWidth="200.0" GridPane.columnSpan="2" GridPane.rowIndex="10" />
+      <TableView fx:id="browserTableView" maxHeight="1.7976931348623157E308" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="11" GridPane.vgrow="ALWAYS">
         <columns>
           <TableColumn prefWidth="75.0" text="C1" />
           <TableColumn prefWidth="75.0" text="C2" />
         </columns>
          <GridPane.margin>
-            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
          </GridPane.margin>
       </TableView>
-      <TextField fx:id="numMessages" GridPane.columnIndex="2" GridPane.rowIndex="1">
+      <Label fx:id="numReceived1" text="num1" GridPane.columnIndex="5" GridPane.rowIndex="4">
          <GridPane.margin>
-            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+            <Insets left="10.0" />
          </GridPane.margin>
-      </TextField>
-      <TextField fx:id="delay" GridPane.columnIndex="3" GridPane.rowIndex="1">
-         <GridPane.margin>
-            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-         </GridPane.margin>
-      </TextField>
-      <Label text="Num Messages" GridPane.columnIndex="2" GridPane.halignment="CENTER" />
-      <Label text="Delay (ms)" GridPane.columnIndex="3" GridPane.halignment="CENTER" />
+      </Label>
+      <Label fx:id="numReceived2" text="num2" GridPane.columnIndex="5" GridPane.rowIndex="8">
+         <padding>
+            <Insets left="10.0" />
+         </padding>
+      </Label>
    </children>
 </GridPane>

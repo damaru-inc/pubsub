@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 import java.util.ResourceBundle;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -43,17 +44,29 @@ public class ClientController implements Initializable {
     @FXML
     TextField numMessages;
     @FXML
-    ObservableList<String> receivedMessages;
+    Label numReceived1;
     @FXML
-    ListView<String> receivedMessagesListView;
+    Label numReceived2;
+    @FXML
+    ObservableList<String> receivedMessages1;
+    @FXML
+    ObservableList<String> receivedMessages2;
+    @FXML
+    ListView<String> receivedMessagesListView1;
+    @FXML
+    ListView<String> receivedMessagesListView2;
     @FXML
     Label sendResult;
     @FXML
-    Label subscribeResult;
+    Label subscribeResult1;
+    @FXML
+    Label subscribeResult2;
     @FXML
     ComboBox<String> sendTopicComboBox;
     @FXML
-    ComboBox<SolaceQueue> subscribeComboBox;
+    ComboBox<SolaceQueue> subscribeComboBox1;
+    @FXML
+    ComboBox<SolaceQueue> subscribeComboBox2;
 
     @Autowired
     Solace solace;
@@ -61,25 +74,29 @@ public class ClientController implements Initializable {
     ConfigController configController;
 
     private SolaceClient sender;
-    private SolaceClient receiver;
-    private HashMap<SolaceQueue, SolaceClient> browsers = new HashMap<>();
-    //List<Object> objList = Collections.synchronizedList(new ArrayList<Object>());
+    private SolaceClient receiver1;
+    private SolaceClient receiver2;
     private long lastUpdate = 0L;
-    private long updateInterval = 500_000_000L; // in nanoseconds - .25 seconds
+    private long updateInterval = 100_000_000L; // in nanoseconds - .25 seconds
     private Random rand = new Random();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         try {
             sender = new SolaceClient(solace.getHost(), Solace.MSG_VPN_NAME, "user1", null);
-            receiver = new SolaceClient(solace.getHost(), Solace.MSG_VPN_NAME, "user2", null);
-            receivedMessages = FXCollections.observableArrayList();
-            receivedMessagesListView.setItems(receivedMessages);
+            receiver1 = new SolaceClient(solace.getHost(), Solace.MSG_VPN_NAME, "user2", null);
+            receiver2 = new SolaceClient(solace.getHost(), Solace.MSG_VPN_NAME, "user2", null);
+            receivedMessages1 = FXCollections.observableArrayList();
+            receivedMessagesListView1.setItems(receivedMessages1);
+            receivedMessages2 = FXCollections.observableArrayList();
+            receivedMessagesListView2.setItems(receivedMessages2);
             log.debug("configController: " + configController);
             sendTopicComboBox.setItems(configController.getTopics());
-            subscribeComboBox.setItems(configController.getSolaceQueues());
+            subscribeComboBox1.setItems(configController.getSolaceQueues());
+            subscribeComboBox2.setItems(configController.getSolaceQueues());
             sendResult.setText("");
-            subscribeResult.setText("");
+            subscribeResult1.setText("");
+            subscribeResult2.setText("");
             numMessages.setText("100");
             delay.setText("0");
 
@@ -91,39 +108,30 @@ public class ClientController implements Initializable {
             countCol.setCellValueFactory(new PropertyValueFactory("numMessages"));
 
             browserTableView.getColumns().setAll(nameCol, topicCol, countCol);
-            
+
             AnimationTimer timer = new AnimationTimer() {
                 @Override
                 public void handle(long now) {
                     long gap = now - lastUpdate;
-                    //log.debug("now: " + now + " gap: " + gap);
+                    // log.debug("now: " + now + " gap: " + gap);
                     if (gap > updateInterval) {
                         lastUpdate = now;
-                        List<String> messages = receiver.getMessages();
-                        int lastSize = receivedMessages.size();
-                        receivedMessages.setAll(messages);
-                        int size = receivedMessages.size();
-                        if (size > 0 && size > lastSize) {
-                            receivedMessagesListView.scrollTo(receivedMessages.size() - 1);
-                        }
+                        updateReceiverList(receiver1, receivedMessages1, receivedMessagesListView1, numReceived1);
+                        updateReceiverList(receiver2, receivedMessages2, receivedMessagesListView2, numReceived2);
 
+                        //log.info("getNumMessages start");
                         try {
                             ObservableList<SolaceQueue> queues = configController.getSolaceQueues();
                             for (SolaceQueue queue : queues) {
-                                SolaceClient browser = browsers.get(queue);
-                                if (browser == null) {
-                                    browser = new SolaceClient(solace.getHost(), Solace.MSG_VPN_NAME, "user1", null);
-                                    browsers.put(queue, browser);
-                                }
-                                int count = browser.getMessageCount(queue.getName());
+                                int count = solace.getNumMessages(queue.getName());
                                 queue.setNumMessages(count);
-                                //log.info("queue: " + queue.getName() + ": " + count);
                             }
                             browserTableView.setItems(queues);
                             browserTableView.refresh();
-                        } catch (JCSMPException e) {
+                        } catch (Exception e) {
                             log.error(e);
                         }
+                        //log.info("getNumMessages end");
                     }
                 }
             };
@@ -135,17 +143,40 @@ public class ClientController implements Initializable {
             log.error(e);
         }
     }
+    
+    private void updateReceiverList(SolaceClient receiver, ObservableList<String> list, 
+            ListView<String> listView, Label label) {
+        ConcurrentLinkedDeque<String> messages = receiver.getMessages();
+        int numMessages = messages.size();
+        label.setText(String.valueOf(numMessages));
+        int oldSize = list.size();
+        list.clear();
+        // only display the last 1000 messages.
+        if (numMessages > 1000) {
+            Object[] arr =  messages.toArray();
+            for (int i = numMessages - 1000; i < numMessages; i++) {
+                list.add(arr[i].toString());
+            }
+        } else {
+            list.addAll(messages);
+        }
+
+        int newSize = list.size();
+        if (newSize > oldSize && newSize > 0) {
+            listView.scrollTo(newSize - 1);
+        }
+    }
 
     public void send(ActionEvent event) {
         sendResult.setText("");
         String topic = sendTopicComboBox.getValue();
-            try {
-                int num = Integer.parseInt(numMessages.getText());
-                int del = Integer.parseInt(delay.getText());
-                List<String> topics = configController.getTopics();
-                int numTopics = (topics != null ? topics.size() : 0);
-                Runnable task = () -> {
-                for (int i = 0; i < num; i++) {
+        try {
+            int num = Integer.parseInt(numMessages.getText());
+            int del = Integer.parseInt(delay.getText());
+            List<String> topics = configController.getTopics();
+            int numTopics = (topics != null ? topics.size() : 0);
+            Runnable task = () -> {
+                for (int i = 1; i <= num; i++) {
                     String top = topic;
                     if (topic == null || topic.equals("") && numTopics > 0) {
                         int pick = rand.nextInt(numTopics);
@@ -164,38 +195,52 @@ public class ClientController implements Initializable {
                         e.printStackTrace();
                     }
                 }
-                };
-                Thread thread = new Thread(task);
-                thread.start();
-            } catch (Exception e) {
-                log.error(e);
-                sendResult.setText(e.getMessage());
-            }
+            };
+            Thread thread = new Thread(task);
+            thread.start();
+        } catch (Exception e) {
+            log.error(e);
+            sendResult.setText(e.getMessage());
+        }
     }
 
-    public void subscribe(ActionEvent event) {
-        SolaceQueue queue = subscribeComboBox.getValue();
+    private void subscribe(SolaceClient receiver, ComboBox<SolaceQueue> combo, Label label) {
+        SolaceQueue queue = combo.getValue();
         if (queue != null) {
             try {
                 receiver.clearMessages();
                 receiver.subscribe(queue.getName());
-                subscribeResult.setText("Subscribed to " + queue);
+                label.setText("Subscribed to " + queue);
             } catch (JCSMPException e) {
                 log.error(e);
-                subscribeResult.setText(e.getMessage());
+                label.setText(e.getMessage());
             }
         }
+        
+    }
+    
+    public void subscribe1(ActionEvent event) {
+        subscribe(receiver1, subscribeComboBox1, subscribeResult1);
     }
 
+    public void subscribe2(ActionEvent event) {
+        subscribe(receiver2, subscribeComboBox2, subscribeResult2);
+    }
+    
     public void close() {
-        if (receiver != null) {
-            receiver.close();
+        if (receiver1 != null) {
+            receiver1.close();
+            receiver2.close();
             sender.close();
         }
     }
 
-    public void clear(ActionEvent event) {
-        receiver.clearMessages();
+    public void clear1(ActionEvent event) {
+        receiver1.clearMessages();
+    }
+    
+    public void clear2(ActionEvent event) {
+        receiver2.clearMessages();
     }
 
 }

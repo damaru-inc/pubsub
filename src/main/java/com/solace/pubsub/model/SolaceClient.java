@@ -2,6 +2,7 @@ package com.solace.pubsub.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -31,7 +32,7 @@ public class SolaceClient {
     private String host;
     private JCSMPSession session;
     private XMLMessageProducer producer;
-    List<String> messages = new ArrayList<>();
+    ConcurrentLinkedDeque<String> messages = new ConcurrentLinkedDeque<>();
     private FlowReceiver receiver;
 
     public SolaceClient(String host, String vpnName, String username, String password) throws JCSMPException {
@@ -139,7 +140,7 @@ public class SolaceClient {
         messages.clear();
     }
 
-    public List<String> getMessages() {
+    public ConcurrentLinkedDeque<String> getMessages() {
         return messages;
     }
 
