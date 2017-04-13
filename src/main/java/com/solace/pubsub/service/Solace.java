@@ -9,6 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
+import com.solace.pubsub.model.SolaceQueue;
 import com.squareup.okhttp.Authenticator;
 import com.squareup.okhttp.Credentials;
 import com.squareup.okhttp.MediaType;
@@ -79,21 +80,35 @@ public class Solace {
         });
     }
 
-    public int getNumMessages(String queueName) throws IOException {
+    public void getStats(SolaceQueue queue) throws IOException {
         if (httpClient == null) {
             setupHttpClient();
         }
-        String semp = SEMP_QUEUE_START + queueName + SEMP_QUEUE_END;
+        String semp = SEMP_QUEUE_START + queue.getName() + SEMP_QUEUE_END;
         RequestBody body = RequestBody.create(JSON, semp);
         Request request = new Request.Builder().url(sempUrl).post(body).build();
         Response response = httpClient.newCall(request).execute();
         String resp = response.body().string();
         //log.info(resp);
-        int spooled = resp.indexOf("num-messages-spooled");
-        int start = resp.indexOf(">", spooled);
+
+        int entity = resp.indexOf("num-messages-spooled");
+        int start = resp.indexOf(">", entity);
         int end = resp.indexOf("<", start);
         String num = resp.substring(start + 1, end);
-        return Integer.valueOf(num);
+        queue.setNumMessages(Integer.valueOf(num));
+
+        entity = resp.indexOf("current-spool-usage-in-mb");
+        start = resp.indexOf(">", entity);
+        end = resp.indexOf("<", start);
+        num = resp.substring(start + 1, end);
+        queue.setCurrentUsage(Double.valueOf(num));
+        
+        entity = resp.indexOf("high-water-mark-in-mb");
+        start = resp.indexOf(">", entity);
+        end = resp.indexOf("<", start);
+        num = resp.substring(start + 1, end);
+        queue.setHighWaterMark(Double.valueOf(num));
+        
     }
 
     public boolean test() {

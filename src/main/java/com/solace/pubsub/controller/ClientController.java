@@ -24,6 +24,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
@@ -58,6 +59,10 @@ public class ClientController implements Initializable {
     @FXML
     Label sendResult;
     @FXML
+    Button startButton;
+    @FXML
+    Button stopButton;
+    @FXML
     Label subscribeResult1;
     @FXML
     Label subscribeResult2;
@@ -77,8 +82,12 @@ public class ClientController implements Initializable {
     private SolaceClient receiver1;
     private SolaceClient receiver2;
     private long lastUpdate = 0L;
-    private long updateInterval = 100_000_000L; // in nanoseconds - .25 seconds
+    private long updateInterval = 100_000_000L; // in nanoseconds - .1 seconds
     private Random rand = new Random();
+    private Thread sendThread;
+    private SendRunner sendRunner;
+    private boolean finishedSending = false;
+    private String sendResultMessage;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -97,8 +106,8 @@ public class ClientController implements Initializable {
             sendResult.setText("");
             subscribeResult1.setText("");
             subscribeResult2.setText("");
-            numMessages.setText("100");
-            delay.setText("0");
+            numMessages.setText("10");
+            delay.setText("1000");
 
             TableColumn<SolaceQueue, String> nameCol = new TableColumn<SolaceQueue, String>("Queue");
             nameCol.setCellValueFactory(new PropertyValueFactory("name"));
@@ -106,8 +115,13 @@ public class ClientController implements Initializable {
             topicCol.setCellValueFactory(new PropertyValueFactory("topic"));
             TableColumn<SolaceQueue, Integer> countCol = new TableColumn<SolaceQueue, Integer>("Messages");
             countCol.setCellValueFactory(new PropertyValueFactory("numMessages"));
+            TableColumn<SolaceQueue, Double> usageCol = new TableColumn<SolaceQueue, Double>("Current Usage (MB)");
+            usageCol.setCellValueFactory(new PropertyValueFactory("currentUsage"));
+            TableColumn<SolaceQueue, Double> highWaterCol = new TableColumn<SolaceQueue, Double>(
+                    "High Water Mark (MB)");
+            highWaterCol.setCellValueFactory(new PropertyValueFactory("highWaterMark"));
 
-            browserTableView.getColumns().setAll(nameCol, topicCol, countCol);
+            browserTableView.getColumns().setAll(nameCol, topicCol, countCol, usageCol, highWaterCol);
 
             AnimationTimer timer = new AnimationTimer() {
                 @Override
@@ -118,20 +132,25 @@ public class ClientController implements Initializable {
                         lastUpdate = now;
                         updateReceiverList(receiver1, receivedMessages1, receivedMessagesListView1, numReceived1);
                         updateReceiverList(receiver2, receivedMessages2, receivedMessagesListView2, numReceived2);
+                        
+                        if (finishedSending) {
+                            sendResult.setText(sendResultMessage);
+                            finishedSending = false;
+                        }
 
-                        //log.info("getNumMessages start");
+                        // log.info("getNumMessages start");
                         try {
                             ObservableList<SolaceQueue> queues = configController.getSolaceQueues();
                             for (SolaceQueue queue : queues) {
-                                int count = solace.getNumMessages(queue.getName());
-                                queue.setNumMessages(count);
+                                solace.getStats(queue);
                             }
                             browserTableView.setItems(queues);
                             browserTableView.refresh();
                         } catch (Exception e) {
+                            stopSending();
                             log.error(e);
                         }
-                        //log.info("getNumMessages end");
+                        // log.info("getNumMessages end");
                     }
                 }
             };
@@ -143,9 +162,9 @@ public class ClientController implements Initializable {
             log.error(e);
         }
     }
-    
-    private void updateReceiverList(SolaceClient receiver, ObservableList<String> list, 
-            ListView<String> listView, Label label) {
+
+    private void updateReceiverList(SolaceClient receiver, ObservableList<String> list, ListView<String> listView,
+            Label label) {
         ConcurrentLinkedDeque<String> messages = receiver.getMessages();
         int numMessages = messages.size();
         label.setText(String.valueOf(numMessages));
@@ -153,7 +172,7 @@ public class ClientController implements Initializable {
         list.clear();
         // only display the last 1000 messages.
         if (numMessages > 1000) {
-            Object[] arr =  messages.toArray();
+            Object[] arr = messages.toArray();
             for (int i = numMessages - 1000; i < numMessages; i++) {
                 list.add(arr[i].toString());
             }
@@ -167,40 +186,31 @@ public class ClientController implements Initializable {
         }
     }
 
-    public void send(ActionEvent event) {
+    public void startSending(ActionEvent event) {
         sendResult.setText("");
         String topic = sendTopicComboBox.getValue();
+        finishedSending = false;
         try {
             int num = Integer.parseInt(numMessages.getText());
-            int del = Integer.parseInt(delay.getText());
+            int dely = Integer.parseInt(delay.getText());
             List<String> topics = configController.getTopics();
-            int numTopics = (topics != null ? topics.size() : 0);
-            Runnable task = () -> {
-                for (int i = 1; i <= num; i++) {
-                    String top = topic;
-                    if (topic == null || topic.equals("") && numTopics > 0) {
-                        int pick = rand.nextInt(numTopics);
-                        top = topics.get(pick);
-                    }
-
-                    Date now = new Date();
-                    String message = top + " " + i + " : " + now;
-                    try {
-                        sender.sendMessage(top, message);
-                        if (del != 0) {
-                            Thread.sleep(del);
-                        }
-                    } catch (Exception e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
-                }
-            };
-            Thread thread = new Thread(task);
-            thread.start();
+            sendRunner = new SendRunner(topic, topics, num, dely);
+            sendThread = new Thread(sendRunner);
+            sendThread.start();
+            startButton.setDisable(true);
+            stopButton.setDisable(false);
         } catch (Exception e) {
+            stopSending();
             log.error(e);
+            startButton.setDisable(false);
+            stopButton.setDisable(false);
             sendResult.setText(e.getMessage());
+        }
+    }
+
+    public void stopSending() {
+        if (sendRunner != null) {
+            sendRunner.quit();
         }
     }
 
@@ -216,9 +226,8 @@ public class ClientController implements Initializable {
                 label.setText(e.getMessage());
             }
         }
-        
     }
-    
+
     public void subscribe1(ActionEvent event) {
         subscribe(receiver1, subscribeComboBox1, subscribeResult1);
     }
@@ -226,21 +235,94 @@ public class ClientController implements Initializable {
     public void subscribe2(ActionEvent event) {
         subscribe(receiver2, subscribeComboBox2, subscribeResult2);
     }
-    
+
+    private void unsubscribe(SolaceClient receiver, Label label) {
+        receiver.clearMessages();
+        receiver.unsubscribe();
+        label.setText("");
+    }
+
+    public void unsubscribe1(ActionEvent event) {
+        unsubscribe(receiver1, subscribeResult1);
+    }
+
+    public void unsubscribe2(ActionEvent event) {
+        unsubscribe(receiver2, subscribeResult2);
+    }
+
     public void close() {
         if (receiver1 != null) {
             receiver1.close();
             receiver2.close();
             sender.close();
         }
+        stopSending();
     }
 
     public void clear1(ActionEvent event) {
         receiver1.clearMessages();
     }
-    
+
     public void clear2(ActionEvent event) {
         receiver2.clearMessages();
+    }
+
+    private class SendRunner implements Runnable {
+
+        private volatile boolean running = true;
+        private String topic;
+        private List<String> topics;
+        private int delay;
+        private int num;
+
+        public SendRunner(String topic, List<String> topics, int num, int delay) {
+            super();
+            this.topic = topic;
+            this.topics = topics;
+            this.delay = delay;
+            this.num = num;
+        }
+
+        @Override
+        public void run() {
+            int numTopics = (topics != null ? topics.size() : 0);
+
+            Date start = new Date();
+            for (int i = 1; i <= num && running; i++) {
+                
+                try {
+                    String top = topic;
+                    if (topic == null || topic.equals("") && numTopics > 0) {
+                        int pick = rand.nextInt(numTopics);
+                        top = topics.get(pick);
+                    }
+
+                    Date now = new Date();
+                    String message = String.format("%s message %05d   Time: %tT ", top, i, now);
+                    sender.sendMessage(top, message);
+                    
+                    if (delay != 0) {
+                        Thread.sleep(delay);
+                    }
+                } catch (Exception e) {
+                    log.error(e);
+                    break;
+                }
+            }
+
+            Date stop = new Date();
+            double millis = stop.getTime() - start.getTime();
+            double secs = millis / 1000;
+            sendResultMessage = String.format("Elapsed time: %f seconds.", secs);
+            finishedSending = true;
+            startButton.setDisable(false);
+            stopButton.setDisable(true);
+        }
+
+        public void quit() {
+            running = false;
+        }
+
     }
 
 }
