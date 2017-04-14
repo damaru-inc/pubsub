@@ -88,13 +88,15 @@ public class SolaceClient {
 
         ConsumerFlowProperties props = new ConsumerFlowProperties();
         props.setEndpoint(queue);
-
-        if (receiver != null) {
-            receiver.close();
-        }
-
+        unsubscribe();
         receiver = session.createFlow(new SimpleMessageListener(), props);
         receiver.start();
+    }
+    
+    public void unsubscribe() {
+        if (receiver != null) {
+            receiver.close();
+        }        
     }
 
     public int getMessageCount(String queueName) throws JCSMPException {
