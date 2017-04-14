@@ -65,7 +65,7 @@ public class ConfigController implements Initializable {
     @Autowired
     MainController mainController;
     
-    @Value("${host:192.168.133.44}")
+    @Value("${solace.host:192.168.1.245}")
     String host;
 
     private ObservableList<String> topics;
