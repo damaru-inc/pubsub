@@ -82,6 +82,7 @@ public class SolaceClient {
         properties.setProperty(JCSMPProperties.VPN_NAME, vpn);
         properties.setProperty(JCSMPProperties.USERNAME, username);
         properties.setProperty(JCSMPProperties.PASSWORD, password);
+        log.info(String.format("Connecting to %s:%d %s %s", host, port, username, password));
         session = JCSMPFactory.onlyInstance().createSession(properties);
     }
 

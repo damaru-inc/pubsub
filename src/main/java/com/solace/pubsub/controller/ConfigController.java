@@ -161,7 +161,7 @@ public class ConfigController implements Initializable {
                     topics.add(topic);
                 }
                 solaceQueues.add(new SolaceQueue(queueName, topic));
-                log.debug("test: added queue " + queueName);
+                log.debug("connect: added queue " + queueName);
             }
         }
     }
