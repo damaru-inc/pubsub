@@ -92,9 +92,9 @@ public class ClientController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         try {
-            sender = new SolaceClient(solace.getHost(), Solace.MSG_VPN_NAME, "user1", null);
-            receiver1 = new SolaceClient(solace.getHost(), Solace.MSG_VPN_NAME, "user2", null);
-            receiver2 = new SolaceClient(solace.getHost(), Solace.MSG_VPN_NAME, "user2", null);
+            sender = new SolaceClient(configController.getMessagingHost(), configController.getMessagingPort(), configController.getVpn(), configController.getClientUsername(), configController.getClientPassword());
+            receiver1 = new SolaceClient(configController.getMessagingHost(), configController.getMessagingPort(), configController.getVpn(), configController.getClientUsername(), configController.getClientPassword());
+            receiver2 = new SolaceClient(configController.getMessagingHost(), configController.getMessagingPort(), configController.getVpn(), configController.getClientUsername(), configController.getClientPassword());
             receivedMessages1 = FXCollections.observableArrayList();
             receivedMessagesListView1.setItems(receivedMessages1);
             receivedMessages2 = FXCollections.observableArrayList();

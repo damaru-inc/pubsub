@@ -40,23 +40,27 @@ public class Solace {
 
 
     private MsgVpnApi sempApiInstance;
-    public static final String MSG_VPN_NAME = "default";
-    private String host;
+    private String managementHost;
+    private Integer managementPort;
+    private String vpn;
     private String username;
     private String password;
     private OkHttpClient httpClient;
     private String sempUrl;
 
-    public void init(String host, String username, String password) {
-        this.host = host;
+    public void init(String managementHost, Integer managementPort, String vpn, String username, String password) {
+        this.managementHost = managementHost;
+        this.managementPort = managementPort;
         this.username = username;
         this.password = password;
+        this.vpn = vpn;
+        sempUrl = "http://" + managementHost + ":" + managementPort + "/SEMP";
         ApiClient client = new ApiClient();
-        client.setBasePath("http://" + host + ":8080/SEMP/v2/config");
+        client.setBasePath(sempUrl + "/v2/config");
         client.setUsername(username);
         client.setPassword(password);
         sempApiInstance = new MsgVpnApi(client);
-        sempUrl = "http://" + host + ":8080/SEMP";
+        log.debug("init - sempUrl: " + sempUrl);
     }
 
     private void setupHttpClient() {
@@ -124,7 +128,7 @@ public class Solace {
 
     public void listClientUsernames() throws ApiException {
         // Ignore paging and selectors in this example. So set to null.
-        MsgVpnClientUsernamesResponse resp = sempApiInstance.getMsgVpnClientUsernames(MSG_VPN_NAME, null, null, null,
+        MsgVpnClientUsernamesResponse resp = sempApiInstance.getMsgVpnClientUsernames(vpn, null, null, null,
                 null);
         List<MsgVpnClientUsername> clientUsernamesList = resp.getData();
         for (MsgVpnClientUsername user : clientUsernamesList) {
@@ -136,7 +140,7 @@ public class Solace {
     public MsgVpnClientUsername getClientUsername(String username) {
         MsgVpnClientUsername ret = null;
         try {
-            MsgVpnClientUsernameResponse resp = sempApiInstance.getMsgVpnClientUsername(MSG_VPN_NAME, username, null);
+            MsgVpnClientUsernameResponse resp = sempApiInstance.getMsgVpnClientUsername(vpn, username, null);
             ret = resp.getData();
             System.out.println("getClientUsername: " + ret);
         } catch (ApiException e) {
@@ -157,7 +161,7 @@ public class Solace {
             newClientUsername.setEnabled(true);
             MsgVpnClientUsernameResponse resp = null;
             try {
-                resp = sempApiInstance.createMsgVpnClientUsername(MSG_VPN_NAME, newClientUsername, null);
+                resp = sempApiInstance.createMsgVpnClientUsername(vpn, newClientUsername, null);
             } catch (ApiException e) {
                 handleError(e);
                 return;
@@ -177,7 +181,7 @@ public class Solace {
 
     public void deleteQueue(String queueName) {
         try {
-            sempApiInstance.deleteMsgVpnQueue(MSG_VPN_NAME, queueName);
+            sempApiInstance.deleteMsgVpnQueue(vpn, queueName);
         } catch (ApiException e) {
             handleError(e);
         }
@@ -194,7 +198,7 @@ public class Solace {
     public MsgVpnQueue getQueue(String queueName) {
         MsgVpnQueue queue = null;
         try {
-            MsgVpnQueueResponse resp = sempApiInstance.getMsgVpnQueue(MSG_VPN_NAME, queueName, null);
+            MsgVpnQueueResponse resp = sempApiInstance.getMsgVpnQueue(vpn, queueName, null);
             queue = resp.getData();
         } catch (ApiException e) {
             handleError(e);
@@ -205,7 +209,7 @@ public class Solace {
     public List<MsgVpnQueue> getQueues() {
         List<MsgVpnQueue> queues = null;
         try {
-            MsgVpnQueuesResponse resp = sempApiInstance.getMsgVpnQueues(MSG_VPN_NAME, 100, null, null, null);
+            MsgVpnQueuesResponse resp = sempApiInstance.getMsgVpnQueues(vpn, 100, null, null, null);
             queues = resp.getData();
             for (MsgVpnQueue queue : queues) {
                 log.info("Retrieved queue " + queue.getQueueName());
@@ -219,10 +223,10 @@ public class Solace {
     public List<MsgVpnQueueSubscription> getSubscriptions() {
         List<MsgVpnQueueSubscription> ret = new ArrayList<>();
         try {
-            MsgVpnQueuesResponse resp = sempApiInstance.getMsgVpnQueues(MSG_VPN_NAME, 100, null, null, null);
+            MsgVpnQueuesResponse resp = sempApiInstance.getMsgVpnQueues(vpn, 100, null, null, null);
             List<MsgVpnQueue> queues = resp.getData();
             for (MsgVpnQueue queue : queues) {
-                MsgVpnQueueSubscriptionsResponse sresp = sempApiInstance.getMsgVpnQueueSubscriptions(MSG_VPN_NAME,
+                MsgVpnQueueSubscriptionsResponse sresp = sempApiInstance.getMsgVpnQueueSubscriptions(vpn,
                         queue.getQueueName(), 100, null, null, null);
                 List<MsgVpnQueueSubscription> subscriptions = sresp.getData();
                 for (MsgVpnQueueSubscription sub : subscriptions) {
@@ -247,20 +251,20 @@ public class Solace {
             queue.permission(PermissionEnum.CONSUME);
             MsgVpnQueueSubscription subscription = new MsgVpnQueueSubscription();
             subscription.setSubscriptionTopic(topic);
-            sempApiInstance.createMsgVpnQueue(MSG_VPN_NAME, queue, null);
+            sempApiInstance.createMsgVpnQueue(vpn, queue, null);
             log.info("Creating queue subscription: " + topic);
-            sempApiInstance.createMsgVpnQueueSubscription(MSG_VPN_NAME, queueName, subscription, null);
+            sempApiInstance.createMsgVpnQueueSubscription(vpn, queueName, subscription, null);
             log.info("Finished creating queue and subscription.");
         }
     }
 
     private void handleError(ApiException ae) {
         String responseString = ae.getResponseBody();
-        log.error("ApiException: " + responseString);
+        log.error("ApiException: " + responseString, ae);
     }
 
     public String getHost() {
-        return host;
+        return managementHost;
     }
 
 }

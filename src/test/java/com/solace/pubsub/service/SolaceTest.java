@@ -22,6 +22,7 @@ public class SolaceTest {
 	private Logger log = LogManager.getLogger(SolaceTest.class);
 
 	protected static final String HOST = "192.168.133.44";
+    protected static final Integer PORT = 7000;
 	protected static final String VPN_NAME = "default";
 	protected static final String USERNAME = "admin";
 	protected static final String PASSWORD = "admin";
@@ -37,7 +38,7 @@ public class SolaceTest {
 		SolaceClient client1 = null;
 		SolaceClient client2 = null;
 		Solace solace = new Solace();
-		solace.init(HOST, USERNAME, PASSWORD);
+		solace.init(HOST, PORT, VPN_NAME, USERNAME, PASSWORD);
 		try {
 			solace.createUsernames();
 			//log.info("Deleting queue...");
@@ -46,8 +47,8 @@ public class SolaceTest {
 			log.info("Creating queue...");
 			solace.createQueue(QUEUE_NAME_1, TOPIC_NAME_1);
 			log.info("Creating clients...");
-			client1 = new SolaceClient(HOST, VPN_NAME, "client1", null);
-			client2 = new SolaceClient(HOST, VPN_NAME, "client2", null);
+			client1 = new SolaceClient(HOST, PORT, VPN_NAME, "client1", null);
+			client2 = new SolaceClient(HOST,PORT,  VPN_NAME, "client2", null);
 			log.info("Subscribing...");
 			client2.subscribe(QUEUE_NAME_1);
 			log.info("Sending message...");
@@ -67,7 +68,7 @@ public class SolaceTest {
 	//@Test
 	public void showConfig() throws Exception {
         Solace solace = new Solace();
-        solace.init(HOST, USERNAME, PASSWORD);
+        solace.init(HOST, PORT, VPN_NAME, USERNAME, PASSWORD);
         solace.getQueues();
         solace.listClientUsernames();
         solace.getSubscriptions();

@@ -28,16 +28,18 @@ public class SolaceClient {
 
     private String username;
     private String password;
-    private String vpnName;
+    private String vpn;
     private String host;
+    private Integer port;
     private JCSMPSession session;
     private XMLMessageProducer producer;
     ConcurrentLinkedDeque<String> messages = new ConcurrentLinkedDeque<>();
     private FlowReceiver receiver;
 
-    public SolaceClient(String host, String vpnName, String username, String password) throws JCSMPException {
+    public SolaceClient(String host, Integer port, String vpn, String username, String password) throws JCSMPException {
         this.host = host;
-        this.vpnName = vpnName;
+        this.port = port;
+        this.vpn = vpn;
         this.username = username;
         this.password = password;
         connect();
@@ -76,8 +78,8 @@ public class SolaceClient {
 
     public void connect() throws JCSMPException {
         final JCSMPProperties properties = new JCSMPProperties();
-        properties.setProperty(JCSMPProperties.HOST, host);
-        properties.setProperty(JCSMPProperties.VPN_NAME, vpnName);
+        properties.setProperty(JCSMPProperties.HOST, host + ":" + port);
+        properties.setProperty(JCSMPProperties.VPN_NAME, vpn);
         properties.setProperty(JCSMPProperties.USERNAME, username);
         properties.setProperty(JCSMPProperties.PASSWORD, password);
         session = JCSMPFactory.onlyInstance().createSession(properties);
@@ -136,6 +138,10 @@ public class SolaceClient {
 
     public String getUsername() {
         return username;
+    }
+    
+    public String getPassword() {
+        return password;
     }
 
     public void clearMessages() {

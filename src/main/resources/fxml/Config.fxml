@@ -15,15 +15,20 @@
 
 <GridPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.solace.pubsub.controller.ConfigController">
   <columnConstraints>
-    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="120.0" />
     <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="100.0" />
+      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
       <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
       <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
   </columnConstraints>
   <rowConstraints>
       <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
       <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
       <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS" />
@@ -34,12 +39,12 @@
       <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
   </rowConstraints>
    <children>
-      <Label alignment="CENTER_RIGHT" contentDisplay="RIGHT" text="Host:" textAlignment="RIGHT" GridPane.halignment="RIGHT" GridPane.rowIndex="1">
+      <Label alignment="CENTER_RIGHT" contentDisplay="RIGHT" text="Mgt Host/Port:" textAlignment="RIGHT" GridPane.halignment="RIGHT" GridPane.rowIndex="1">
          <GridPane.margin>
             <Insets right="20.0" />
          </GridPane.margin>
       </Label>
-      <TextField fx:id="hostField" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="1">
+      <TextField fx:id="managementHostField" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="1">
          <padding>
             <Insets left="20.0" right="20.0" />
          </padding>
@@ -52,7 +57,7 @@
             <Font size="14.0" />
          </font>
       </Label>
-      <Label alignment="CENTER_RIGHT" contentDisplay="RIGHT" layoutX="262.0" layoutY="47.0" text="Admin user:" textAlignment="RIGHT" GridPane.halignment="RIGHT" GridPane.rowIndex="2">
+      <Label alignment="CENTER_RIGHT" contentDisplay="RIGHT" layoutX="262.0" layoutY="47.0" text="Admin user:" textAlignment="RIGHT" GridPane.halignment="RIGHT" GridPane.rowIndex="4">
          <padding>
             <Insets right="20.0" />
          </padding>
@@ -60,12 +65,12 @@
             <Insets />
          </GridPane.margin>
       </Label>
-      <Label text="Password:" GridPane.halignment="RIGHT" GridPane.rowIndex="3">
+      <Label text="Password:" GridPane.halignment="RIGHT" GridPane.rowIndex="5">
          <padding>
             <Insets right="20.0" />
          </padding>
       </Label>
-      <TextField fx:id="usernameField" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="2">
+      <TextField fx:id="managementUsernameField" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="4">
          <GridPane.margin>
             <Insets left="20.0" right="20.0" />
          </GridPane.margin>
@@ -73,7 +78,7 @@
             <Insets left="20.0" />
          </padding>
       </TextField>
-      <TextField fx:id="passwordField" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="3">
+      <TextField fx:id="managementPasswordField" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="5">
          <GridPane.margin>
             <Insets left="20.0" right="20.0" />
          </GridPane.margin>
@@ -81,34 +86,34 @@
             <Insets left="20.0" />
          </padding>
       </TextField>
-      <Button mnemonicParsing="false" onAction="#connect" text="Connect" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="1">
+      <Button mnemonicParsing="false" onAction="#connect" text="Connect" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.rowIndex="1">
          <GridPane.margin>
             <Insets />
          </GridPane.margin>
       </Button>
-      <Label fx:id="connectResult" text="test results label" GridPane.columnIndex="3" GridPane.halignment="LEFT" GridPane.rowIndex="2">
+      <Label fx:id="connectResult" text="test results label" GridPane.columnIndex="4" GridPane.halignment="LEFT" GridPane.rowIndex="4">
          <GridPane.margin>
             <Insets left="20.0" />
          </GridPane.margin>
       </Label>
-      <Separator prefWidth="200.0" GridPane.columnSpan="2147483647" GridPane.rowIndex="4" />
-      <Label text="Topics" GridPane.halignment="RIGHT" GridPane.rowIndex="5">
+      <Separator prefWidth="200.0" GridPane.columnSpan="2147483647" GridPane.rowIndex="8" />
+      <Label text="Topics" GridPane.halignment="RIGHT" GridPane.rowIndex="9">
          <GridPane.margin>
             <Insets right="20.0" />
          </GridPane.margin>
       </Label>
-      <ListView fx:id="topicListView" maxHeight="1.7976931348623157E308" prefHeight="50.0" prefWidth="100.0" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="5">
+      <ListView fx:id="topicListView" maxHeight="1.7976931348623157E308" prefHeight="50.0" prefWidth="100.0" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="9">
          <GridPane.margin>
             <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
          </GridPane.margin>
       </ListView>
-      <Separator prefWidth="200.0" GridPane.columnSpan="2147483647" GridPane.rowIndex="6" />
-      <Label text="Queues" GridPane.halignment="RIGHT" GridPane.rowIndex="7">
+      <Separator prefWidth="200.0" GridPane.columnSpan="2147483647" GridPane.rowIndex="10" />
+      <Label text="Queues" GridPane.halignment="RIGHT" GridPane.rowIndex="11">
          <GridPane.margin>
             <Insets right="20.0" />
          </GridPane.margin>
       </Label>
-      <TableView fx:id="queueTableView" maxHeight="1.7976931348623157E308" prefHeight="50.0" prefWidth="100.0" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="7" GridPane.rowSpan="3">
+      <TableView fx:id="queueTableView" maxHeight="1.7976931348623157E308" prefHeight="50.0" prefWidth="100.0" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="11" GridPane.rowSpan="3">
         <columns>
           <TableColumn editable="false" prefWidth="75.0" sortable="false" text="C1" />
           <TableColumn prefWidth="75.0" text="C2" />
@@ -117,7 +122,69 @@
             <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
          </GridPane.margin>
       </TableView>
-      <Button fx:id="deleteQueuesButton" disable="true" mnemonicParsing="false" onAction="#deleteQueues" text="Delete Queues" GridPane.columnIndex="3" GridPane.rowIndex="8" />
-      <Button fx:id="addQueueButton" disable="true" mnemonicParsing="false" onAction="#addQueue" text="Add Queue" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="7" />
+      <Button fx:id="deleteQueuesButton" disable="true" mnemonicParsing="false" onAction="#deleteQueues" text="Delete Queues" GridPane.columnIndex="4" GridPane.rowIndex="12" />
+      <Button fx:id="addQueueButton" disable="true" mnemonicParsing="false" onAction="#addQueue" text="Add Queue" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.rowIndex="11" />
+      <Label alignment="CENTER_RIGHT" contentDisplay="RIGHT" text="Msg Host/Port:" textAlignment="RIGHT" GridPane.halignment="RIGHT" GridPane.rowIndex="2">
+         <GridPane.margin>
+            <Insets right="20.0" />
+         </GridPane.margin>
+      </Label>
+      <TextField fx:id="messagingHostField" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="2">
+         <padding>
+            <Insets left="20.0" right="20.0" />
+         </padding>
+         <GridPane.margin>
+            <Insets left="20.0" right="20.0" />
+         </GridPane.margin>
+      </TextField>
+      <TextField fx:id="managementPortField" GridPane.columnIndex="3" GridPane.rowIndex="1">
+         <GridPane.margin>
+            <Insets left="20.0" right="20.0" />
+         </GridPane.margin>
+      </TextField>
+      <TextField fx:id="messagingPortField" GridPane.columnIndex="3" GridPane.rowIndex="2">
+         <GridPane.margin>
+            <Insets left="20.0" right="20.0" />
+         </GridPane.margin>
+      </TextField>
+      <Label alignment="CENTER_RIGHT" contentDisplay="RIGHT" text="VPN name:" textAlignment="RIGHT" GridPane.halignment="RIGHT" GridPane.rowIndex="3">
+         <GridPane.margin>
+            <Insets right="20.0" />
+         </GridPane.margin>
+      </Label>
+      <TextField fx:id="vpnField" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="3">
+         <padding>
+            <Insets left="20.0" right="20.0" />
+         </padding>
+         <GridPane.margin>
+            <Insets left="20.0" right="20.0" />
+         </GridPane.margin>
+      </TextField>
+      <Label alignment="CENTER_RIGHT" contentDisplay="RIGHT" text="Client user:" textAlignment="RIGHT" GridPane.halignment="RIGHT" GridPane.rowIndex="6">
+         <padding>
+            <Insets right="20.0" />
+         </padding>
+      </Label>
+      <Label text="Password:" GridPane.halignment="RIGHT" GridPane.rowIndex="7">
+         <padding>
+            <Insets right="20.0" />
+         </padding>
+      </Label>
+      <TextField fx:id="clientUsernameField" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="6">
+         <padding>
+            <Insets left="20.0" right="20.0" />
+         </padding>
+         <GridPane.margin>
+            <Insets left="20.0" right="20.0" />
+         </GridPane.margin>
+      </TextField>
+      <TextField fx:id="clientPasswordField" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="7">
+         <padding>
+            <Insets left="20.0" right="20.0" />
+         </padding>
+         <GridPane.margin>
+            <Insets left="20.0" right="20.0" />
+         </GridPane.margin>
+      </TextField>
    </children>
 </GridPane>

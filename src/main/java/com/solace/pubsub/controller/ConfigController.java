@@ -49,37 +49,84 @@ public class ConfigController implements Initializable {
     @FXML
     Button deleteQueuesButton;
     @FXML
-    TextField hostField;
+    TextField managementHostField;
     @FXML
-    TextField passwordField;
+    TextField managementPortField;
+    @FXML
+    TextField messagingHostField;
+    @FXML
+    TextField messagingPortField;
+    @FXML
+    TextField managementUsernameField;
+    @FXML
+    TextField managementPasswordField;
+    @FXML
+    TextField clientUsernameField;
+    @FXML
+    TextField clientPasswordField;
+    @FXML
+    TextField vpnField;
     @FXML
     TableView<SolaceQueue> queueTableView;
     @FXML
     Label connectResult;
     @FXML
     ListView<String> topicListView;
-    @FXML
-    TextField usernameField;
     @Autowired
     Solace solace;
     @Autowired
     MainController mainController;
     
-    @Value("${host:192.168.133.44}")
-    String host;
+    @Value("${managementHost:192.168.133.44}")
+    String managementHost;
+
+    @Value("${managementPort:8080}")
+    Integer managementPort;
+
+    @Value("${managementUsername:admin}")
+    String managementUsername;
+
+    @Value("${managementPassword:admin}")
+    String managementPassword;
+
+    @Value("${messagingHost:192.168.133.44}")
+    String messagingHost;
+
+    @Value("${messagingPort:7000}")
+    Integer messagingPort;
+
+    @Value("${clientUsername:admin}")
+    String clientUsername;
+
+    @Value("${clientPassword:admin}")
+    String clientPassword;
+
+    @Value("${vpn:default}")
+    String vpn;
 
     private ObservableList<String> topics;
     private ObservableList<SolaceQueue> solaceQueues;
-
-    private String vpnName = "default";
 
     @Override
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public void initialize(URL location, ResourceBundle resources) {
 
-        usernameField.setText("admin");
-        passwordField.setText("admin");
-        hostField.setText(host);
+        managementHostField.setText(managementHost);
+        managementUsernameField.setText(managementUsername);
+        managementPasswordField.setText(managementPassword);
+        messagingHostField.setText(messagingHost);
+        clientUsernameField.setText(clientUsername);
+        clientPasswordField.setText(clientPassword);
+        vpnField.setText(vpn);
+        
+        if (managementPort != null) {
+            managementPortField.setText(managementPort.toString());
+        }
+        
+        if (messagingPort != null) {
+            messagingPortField.setText(messagingPort.toString());
+        }
+        
         connectResult.setText("");
 
         topics = FXCollections.observableArrayList();
@@ -120,7 +167,7 @@ public class ConfigController implements Initializable {
     }
 
     public void connect(ActionEvent event) {
-        solace.init(hostField.getText(), usernameField.getText(), passwordField.getText());
+        solace.init(managementHostField.getText(), Integer.valueOf(managementPortField.getText()), vpnField.getText(), managementUsernameField.getText(), managementPasswordField.getText());
         connected = solace.test();
         if (connected) {
             connectResult.setText("Connected");
@@ -203,12 +250,24 @@ public class ConfigController implements Initializable {
         });
     }
 
-    public String getVpnName() {
-        return vpnName;
+    public String getVpn() {
+        return vpnField.getText();
     }
 
-    public void setVpnName(String vpnName) {
-        this.vpnName = vpnName;
+    public String getMessagingHost() {
+        return messagingHostField.getText();
+    }
+    
+    public Integer getMessagingPort() {
+        return Integer.valueOf(messagingPortField.getText());
+    }
+    
+    public String getClientUsername() {
+        return clientUsernameField.getText();
+    }
+
+    public String getClientPassword() {
+        return clientPasswordField.getText();
     }
 
     public boolean isConnected() {
