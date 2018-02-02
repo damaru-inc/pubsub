@@ -54,7 +54,7 @@ public class Solace {
         this.username = username;
         this.password = password;
         this.vpn = vpn;
-        sempUrl = "http://" + managementHost + ":" + managementPort + "/SEMP";
+        sempUrl = "https://" + managementHost + ":" + managementPort + "/SEMP";
         ApiClient client = new ApiClient();
         client.setBasePath(sempUrl + "/v2/config");
         client.setUsername(username);

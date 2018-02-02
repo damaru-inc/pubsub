@@ -1,7 +1,5 @@
 package com.solace.pubsub.model;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 import org.apache.logging.log4j.LogManager;
@@ -9,6 +7,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.solacesystems.jcsmp.Browser;
 import com.solacesystems.jcsmp.BrowserProperties;
+import com.solacesystems.jcsmp.BytesMessage;
 import com.solacesystems.jcsmp.BytesXMLMessage;
 import com.solacesystems.jcsmp.ConsumerFlowProperties;
 import com.solacesystems.jcsmp.FlowReceiver;
@@ -20,11 +19,14 @@ import com.solacesystems.jcsmp.JCSMPStreamingPublishEventHandler;
 import com.solacesystems.jcsmp.Queue;
 import com.solacesystems.jcsmp.TextMessage;
 import com.solacesystems.jcsmp.Topic;
+import com.solacesystems.jcsmp.XMLContentMessage;
 import com.solacesystems.jcsmp.XMLMessageListener;
 import com.solacesystems.jcsmp.XMLMessageProducer;
 
 public class SolaceClient {
     private Logger log = LogManager.getLogger(SolaceClient.class);
+    
+    private static int ID = 0;
 
     private String username;
     private String password;
@@ -65,8 +67,14 @@ public class SolaceClient {
 
             if (receivedMessage instanceof TextMessage) {
                 messages.add(((TextMessage) receivedMessage).getText());
+            } else if (receivedMessage instanceof BytesMessage) {
+            	BytesMessage bm = (BytesMessage) receivedMessage;
+            	messages.add(new String(bm.getData()));
+            } else if (receivedMessage instanceof XMLContentMessage) {
+            	XMLContentMessage xm = (XMLContentMessage) receivedMessage;
+            	messages.add(xm.getXMLContent());
             } else {
-                log.error("Received message that was not a TextMessage: " + receivedMessage.dump());
+                log.error("Received message that was not a TextMessage or a BytesMessage: " + receivedMessage.getClass() + "\n" + receivedMessage.dump());
             }
         }
 
@@ -88,7 +96,6 @@ public class SolaceClient {
 
     public void subscribe(String queueName) throws JCSMPException {
         Queue queue = JCSMPFactory.onlyInstance().createQueue(queueName);
-
         ConsumerFlowProperties props = new ConsumerFlowProperties();
         props.setEndpoint(queue);
         unsubscribe();
@@ -134,6 +141,7 @@ public class SolaceClient {
         final Topic tp = JCSMPFactory.onlyInstance().createTopic(topic);
         TextMessage msg = JCSMPFactory.onlyInstance().createMessage(TextMessage.class);
         msg.setText(message);
+        msg.setApplicationMessageId(generateMessageId());
         producer.send(msg, tp);
     }
 
@@ -151,6 +159,10 @@ public class SolaceClient {
 
     public ConcurrentLinkedDeque<String> getMessages() {
         return messages;
+    }
+    
+    private String generateMessageId() {
+    	return String.format("ID-%06d", ID++);
     }
 
 }
