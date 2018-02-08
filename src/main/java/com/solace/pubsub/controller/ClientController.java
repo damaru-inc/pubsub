@@ -82,7 +82,7 @@ public class ClientController implements Initializable {
     private SolaceClient receiver1;
     private SolaceClient receiver2;
     private long lastUpdate = 0L;
-    private long updateInterval = 100_000_000L; // in nanoseconds - .1 seconds
+    private long updateInterval = 1_000_000_000L; // in nanoseconds - 1 second
     private Random rand = new Random();
     private Thread sendThread;
     private SendRunner sendRunner;
@@ -107,7 +107,7 @@ public class ClientController implements Initializable {
             subscribeResult1.setText("");
             subscribeResult2.setText("");
             numMessages.setText("10");
-            delay.setText("1000");
+            delay.setText("0");
 
             TableColumn<SolaceQueue, String> nameCol = new TableColumn<SolaceQueue, String>("Queue");
             nameCol.setCellValueFactory(new PropertyValueFactory("name"));
@@ -127,7 +127,7 @@ public class ClientController implements Initializable {
                 @Override
                 public void handle(long now) {
                     long gap = now - lastUpdate;
-                    // log.debug("now: " + now + " gap: " + gap);
+                    //log.debug("now: " + now + " gap: " + gap);
                     if (gap > updateInterval) {
                         lastUpdate = now;
                         updateReceiverList(receiver1, receivedMessages1, receivedMessagesListView1, numReceived1);
@@ -138,7 +138,7 @@ public class ClientController implements Initializable {
                             finishedSending = false;
                         }
 
-                        // log.info("getNumMessages start");
+                        //log.info("getNumMessages start");
                         try {
                             ObservableList<SolaceQueue> queues = configController.getSolaceQueues();
                             for (SolaceQueue queue : queues) {
@@ -150,7 +150,7 @@ public class ClientController implements Initializable {
                             stopSending();
                             log.error(e);
                         }
-                        // log.info("getNumMessages end");
+                        //log.info("getNumMessages end");
                     }
                 }
             };

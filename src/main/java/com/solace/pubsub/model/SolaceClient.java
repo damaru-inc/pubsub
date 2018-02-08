@@ -64,12 +64,19 @@ public class SolaceClient {
 
         @Override
         public void onReceive(BytesXMLMessage receivedMessage) {
+        	
+        	log.info("onReceive " + receivedMessage.getClass());
 
             if (receivedMessage instanceof TextMessage) {
                 messages.add(((TextMessage) receivedMessage).getText());
             } else if (receivedMessage instanceof BytesMessage) {
             	BytesMessage bm = (BytesMessage) receivedMessage;
-            	messages.add(new String(bm.getData()));
+            	byte[] data = bm.getData();
+            	if (data != null) {
+            		messages.add(new String(data));
+            	} else {
+            		messages.add("(null)");
+            	}
             } else if (receivedMessage instanceof XMLContentMessage) {
             	XMLContentMessage xm = (XMLContentMessage) receivedMessage;
             	messages.add(xm.getXMLContent());
@@ -109,6 +116,7 @@ public class SolaceClient {
         }        
     }
 
+    /*
     public int getMessageCount(String queueName) throws JCSMPException {
         int ret = 0;
         Queue queue = JCSMPFactory.onlyInstance().createQueue(queueName);
@@ -124,6 +132,7 @@ public class SolaceClient {
         browser.close();
         return ret;
     }
+    */
 
     public void close() {
         if (receiver != null) {
