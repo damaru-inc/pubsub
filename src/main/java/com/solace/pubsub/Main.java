@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import com.solace.pubsub.controller.ClientController;
 import com.solace.pubsub.controller.ConfigController;
@@ -22,6 +23,7 @@ import javafx.stage.Stage;
 
 @Configuration
 @ComponentScan("com.solace.pubsub")
+@EnableScheduling
 public class Main extends Application {
 
     private Logger log = LogManager.getLogger(Main.class);

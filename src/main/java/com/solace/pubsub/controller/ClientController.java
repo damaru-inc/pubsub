@@ -3,14 +3,22 @@ package com.solace.pubsub.controller;
 import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.ResourceBundle;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.ScheduledFuture;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.TaskScheduler;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+import org.springframework.scheduling.support.ScheduledMethodRunnable;
 import org.springframework.stereotype.Component;
 
 import com.solace.pubsub.model.SolaceClient;
@@ -19,6 +27,7 @@ import com.solace.pubsub.service.Solace;
 import com.solacesystems.jcsmp.JCSMPException;
 
 import javafx.animation.AnimationTimer;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -77,6 +86,9 @@ public class ClientController implements Initializable {
     Solace solace;
     @Autowired
     ConfigController configController;
+    
+    private final Map<Object, ScheduledFuture<?>> scheduledTasks = new IdentityHashMap<>();
+
 
     private SolaceClient sender;
     private SolaceClient receiver1;
@@ -88,6 +100,7 @@ public class ClientController implements Initializable {
     private SendRunner sendRunner;
     private boolean finishedSending = false;
     private String sendResultMessage;
+    private boolean doStop = false;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -123,39 +136,39 @@ public class ClientController implements Initializable {
 
             browserTableView.getColumns().setAll(nameCol, topicCol, countCol, usageCol, highWaterCol);
 
-            AnimationTimer timer = new AnimationTimer() {
-                @Override
-                public void handle(long now) {
-                    long gap = now - lastUpdate;
-                    //log.debug("now: " + now + " gap: " + gap);
-                    if (gap > updateInterval) {
-                        lastUpdate = now;
-                        updateReceiverList(receiver1, receivedMessages1, receivedMessagesListView1, numReceived1);
-                        updateReceiverList(receiver2, receivedMessages2, receivedMessagesListView2, numReceived2);
-                        
-                        if (finishedSending) {
-                            sendResult.setText(sendResultMessage);
-                            finishedSending = false;
-                        }
-
-                        //log.info("getNumMessages start");
-                        try {
-                            ObservableList<SolaceQueue> queues = configController.getSolaceQueues();
-                            for (SolaceQueue queue : queues) {
-                                solace.getStats(queue);
-                            }
-                            browserTableView.setItems(queues);
-                            browserTableView.refresh();
-                        } catch (Exception e) {
-                            stopSending();
-                            log.error(e);
-                        }
-                        //log.info("getNumMessages end");
-                    }
-                }
-            };
-
-            timer.start();
+//            AnimationTimer timer = new AnimationTimer() {
+//                @Override
+//                public void handle(long now) {
+//                    long gap = now - lastUpdate;
+//                    //log.debug("now: " + now + " gap: " + gap);
+//                    if (gap > updateInterval) {
+//                        lastUpdate = now;
+//                        updateReceiverList(receiver1, receivedMessages1, receivedMessagesListView1, numReceived1);
+//                        updateReceiverList(receiver2, receivedMessages2, receivedMessagesListView2, numReceived2);
+//                        
+//                        if (finishedSending) {
+//                            sendResult.setText(sendResultMessage);
+//                            finishedSending = false;
+//                        }
+//
+//                        //log.info("getNumMessages start");
+//                        try {
+//                            ObservableList<SolaceQueue> queues = configController.getSolaceQueues();
+//                            for (SolaceQueue queue : queues) {
+//                                solace.getStats(queue);
+//                            }
+//                            browserTableView.setItems(queues);
+//                            browserTableView.refresh();
+//                        } catch (Exception e) {
+//                            stopSending();
+//                            log.error(e);
+//                        }
+//                        //log.info("getNumMessages end");
+//                    }
+//                }
+//            };
+//
+//            timer.start();
 
         } catch (JCSMPException e) {
             // TODO Auto-generated catch block
@@ -163,9 +176,9 @@ public class ClientController implements Initializable {
         }
     }
 
-    private void updateReceiverList(SolaceClient receiver, ObservableList<String> list, ListView<String> listView,
+    private void updateReceiverList(ConcurrentLinkedDeque<String> messages, ObservableList<String> list, ListView<String> listView,
             Label label) {
-        ConcurrentLinkedDeque<String> messages = receiver.getMessages();
+    	
         int numMessages = messages.size();
         label.setText(String.valueOf(numMessages));
         int oldSize = list.size();
@@ -237,7 +250,6 @@ public class ClientController implements Initializable {
     }
 
     private void unsubscribe(SolaceClient receiver, Label label) {
-        receiver.clearMessages();
         receiver.unsubscribe();
         label.setText("");
     }
@@ -257,6 +269,9 @@ public class ClientController implements Initializable {
             sender.close();
         }
         stopSending();
+        doStop = true;
+        
+        scheduledTasks.forEach((k, v) -> { log.info("Quitting scheduled thread " + k + " " + v); v.cancel(true); } );
     }
 
     public void clear1(ActionEvent event) {
@@ -324,5 +339,68 @@ public class ClientController implements Initializable {
         }
 
     }
+    
+    @Scheduled(fixedRate = 1000)
+    public void updateStats() {
+    	
+    	if (receiver1 == null || doStop) {
+    		return; // not yet initialized, or Stop called.
+    	}
+    	
+        final ConcurrentLinkedDeque<String> messages1 = receiver1.getMessages();
+        final ConcurrentLinkedDeque<String> messages2 = receiver2.getMessages();
+        
+        //log.info("getNumMessages start");
+        try {
+        	final ObservableList<SolaceQueue> queues = configController.getSolaceQueues();
+            for (SolaceQueue queue : queues) {
+                solace.getStats(queue);
+            }
+            Platform.runLater(new Runnable() {
+    			@Override
+    			public void run() {
+                    updateReceiverList(messages1, receivedMessages1, receivedMessagesListView1, numReceived1);
+                    updateReceiverList(messages2, receivedMessages2, receivedMessagesListView2, numReceived2);
+    	            browserTableView.setItems(queues);
+    	            browserTableView.refresh();				
+    			}
+            	
+            });
+        } catch (Exception e) {
+            stopSending();
+            log.error(e);
+        }
+        //log.info("getNumMessages end");
+        
+    }    
 
+    @Bean
+    public TaskScheduler poolScheduler() {
+        return new CustomTaskScheduler();
+    }
+
+    class CustomTaskScheduler extends ThreadPoolTaskScheduler {
+
+        @Override
+        public ScheduledFuture<?> scheduleAtFixedRate(Runnable task, long period) {
+            ScheduledFuture<?> future = super.scheduleAtFixedRate(task, period);
+
+            ScheduledMethodRunnable runnable = (ScheduledMethodRunnable) task;
+            scheduledTasks.put(runnable.getTarget(), future);
+            
+            log.info("scheduleAtFixedRate " +  task + " " + period);
+
+            return future;
+        }
+
+        @Override
+        public ScheduledFuture<?> scheduleAtFixedRate(Runnable task, Date startTime, long period) {
+            ScheduledFuture<?> future = super.scheduleAtFixedRate(task, startTime, period);
+
+            ScheduledMethodRunnable runnable = (ScheduledMethodRunnable) task;
+            scheduledTasks.put(runnable.getTarget(), future);
+
+            return future;
+        }
+    }
 }

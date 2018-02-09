@@ -65,7 +65,7 @@ public class SolaceClient {
         @Override
         public void onReceive(BytesXMLMessage receivedMessage) {
         	
-        	log.info("onReceive " + receivedMessage.getClass());
+        	//log.info("onReceive " + receivedMessage.getClass());
 
             if (receivedMessage instanceof TextMessage) {
                 messages.add(((TextMessage) receivedMessage).getText());
