@@ -68,7 +68,12 @@ public class SolaceClient {
         	//log.info("onReceive " + receivedMessage.getClass());
 
             if (receivedMessage instanceof TextMessage) {
-                messages.add(((TextMessage) receivedMessage).getText());
+            	String data = ((TextMessage) receivedMessage).getText();
+            	if (data != null) {
+            		messages.add(new String(data));
+            	} else {
+            		messages.add("(null)");
+            	}
             } else if (receivedMessage instanceof BytesMessage) {
             	BytesMessage bm = (BytesMessage) receivedMessage;
             	byte[] data = bm.getData();
