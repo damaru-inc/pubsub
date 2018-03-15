@@ -77,6 +77,7 @@ public class Main extends Application {
         log.debug("Called stop.");
         clientController.close();
         Platform.exit();
+        System.exit(0);
     }
 
 }

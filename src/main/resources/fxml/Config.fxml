@@ -2,6 +2,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.Separator?>
@@ -27,6 +28,7 @@
       <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
       <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
       <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
       <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
       <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
@@ -96,24 +98,24 @@
             <Insets left="20.0" />
          </GridPane.margin>
       </Label>
-      <Separator prefWidth="200.0" GridPane.columnSpan="2147483647" GridPane.rowIndex="8" />
-      <Label text="Topics" GridPane.halignment="RIGHT" GridPane.rowIndex="9">
+      <Separator prefWidth="200.0" GridPane.columnSpan="2147483647" GridPane.rowIndex="9" />
+      <Label text="Topics" GridPane.halignment="RIGHT" GridPane.rowIndex="10">
          <GridPane.margin>
             <Insets right="20.0" />
          </GridPane.margin>
       </Label>
-      <ListView fx:id="topicListView" maxHeight="1.7976931348623157E308" prefHeight="50.0" prefWidth="100.0" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="9">
+      <ListView fx:id="topicListView" maxHeight="1.7976931348623157E308" prefHeight="50.0" prefWidth="100.0" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="10">
          <GridPane.margin>
             <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
          </GridPane.margin>
       </ListView>
-      <Separator prefWidth="200.0" GridPane.columnSpan="2147483647" GridPane.rowIndex="10" />
-      <Label text="Queues" GridPane.halignment="RIGHT" GridPane.rowIndex="11">
+      <Separator prefWidth="200.0" GridPane.columnSpan="2147483647" GridPane.rowIndex="11" />
+      <Label text="Queues" GridPane.halignment="RIGHT" GridPane.rowIndex="12">
          <GridPane.margin>
             <Insets right="20.0" />
          </GridPane.margin>
       </Label>
-      <TableView fx:id="queueTableView" maxHeight="1.7976931348623157E308" prefHeight="50.0" prefWidth="100.0" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="11" GridPane.rowSpan="3">
+      <TableView fx:id="queueTableView" maxHeight="1.7976931348623157E308" prefHeight="50.0" prefWidth="100.0" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="12" GridPane.rowSpan="3">
         <columns>
           <TableColumn editable="false" prefWidth="75.0" sortable="false" text="C1" />
           <TableColumn prefWidth="75.0" text="C2" />
@@ -122,8 +124,8 @@
             <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
          </GridPane.margin>
       </TableView>
-      <Button fx:id="deleteQueuesButton" disable="true" mnemonicParsing="false" onAction="#deleteQueues" text="Delete Queues" GridPane.columnIndex="4" GridPane.rowIndex="12" />
-      <Button fx:id="addQueueButton" disable="true" mnemonicParsing="false" onAction="#addQueue" text="Add Queue" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.rowIndex="11" />
+      <Button fx:id="deleteQueuesButton" disable="true" mnemonicParsing="false" onAction="#deleteQueues" text="Delete Queues" GridPane.columnIndex="4" GridPane.rowIndex="13" />
+      <Button fx:id="addQueueButton" disable="true" mnemonicParsing="false" onAction="#addQueue" text="Add Queue" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.rowIndex="12" />
       <Label alignment="CENTER_RIGHT" contentDisplay="RIGHT" text="Msg Host/Port:" textAlignment="RIGHT" GridPane.halignment="RIGHT" GridPane.rowIndex="2">
          <GridPane.margin>
             <Insets right="20.0" />
@@ -186,5 +188,15 @@
             <Insets left="20.0" right="20.0" />
          </GridPane.margin>
       </TextField>
+      <CheckBox fx:id="secureField" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.rowIndex="8">
+         <GridPane.margin>
+            <Insets left="20.0" />
+         </GridPane.margin>
+      </CheckBox>
+      <Label text="Secure (https):" GridPane.halignment="RIGHT" GridPane.rowIndex="8">
+         <padding>
+            <Insets right="20.0" />
+         </padding>
+      </Label>
    </children>
 </GridPane>

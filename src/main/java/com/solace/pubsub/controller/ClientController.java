@@ -271,7 +271,9 @@ public class ClientController implements Initializable {
         stopSending();
         doStop = true;
         
-        scheduledTasks.forEach((k, v) -> { log.info("Quitting scheduled thread " + k + " " + v); v.cancel(true); } );
+        scheduledTasks.forEach((k, v) -> { 
+        	v.cancel(true);
+        });        
     }
 
     public void clear1(ActionEvent event) {

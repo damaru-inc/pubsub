@@ -38,7 +38,7 @@ public class SolaceTest {
 		SolaceClient client1 = null;
 		SolaceClient client2 = null;
 		Solace solace = new Solace();
-		solace.init(HOST, PORT, VPN_NAME, USERNAME, PASSWORD);
+		solace.init(HOST, PORT, VPN_NAME, USERNAME, PASSWORD, false);
 		try {
 			solace.createUsernames();
 			//log.info("Deleting queue...");
@@ -68,7 +68,7 @@ public class SolaceTest {
 	//@Test
 	public void showConfig() throws Exception {
         Solace solace = new Solace();
-        solace.init(HOST, PORT, VPN_NAME, USERNAME, PASSWORD);
+        solace.init(HOST, PORT, VPN_NAME, USERNAME, PASSWORD, false);
         solace.getQueues();
         solace.listClientUsernames();
         solace.getSubscriptions();

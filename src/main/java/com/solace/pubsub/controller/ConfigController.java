@@ -27,6 +27,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
@@ -67,6 +68,8 @@ public class ConfigController implements Initializable {
     @FXML
     TextField vpnField;
     @FXML
+    CheckBox secureField;
+    @FXML
     TableView<SolaceQueue> queueTableView;
     @FXML
     Label connectResult;
@@ -103,6 +106,9 @@ public class ConfigController implements Initializable {
 
     @Value("${vpn:default}")
     String vpn;
+    
+    @Value("${secure:false}")
+    Boolean secure;
 
     private ObservableList<String> topics;
     private ObservableList<SolaceQueue> solaceQueues;
@@ -118,6 +124,7 @@ public class ConfigController implements Initializable {
         clientUsernameField.setText(clientUsername);
         clientPasswordField.setText(clientPassword);
         vpnField.setText(vpn);
+        secureField.setSelected(secure);
         
         if (managementPort != null) {
             managementPortField.setText(managementPort.toString());
@@ -167,7 +174,7 @@ public class ConfigController implements Initializable {
     }
 
     public void connect(ActionEvent event) {
-        solace.init(managementHostField.getText(), Integer.valueOf(managementPortField.getText()), vpnField.getText(), managementUsernameField.getText(), managementPasswordField.getText());
+        solace.init(managementHostField.getText(), Integer.valueOf(managementPortField.getText()), vpnField.getText(), managementUsernameField.getText(), managementPasswordField.getText(), secureField.isSelected());
         connected = solace.test();
         if (connected) {
             connectResult.setText("Connected");

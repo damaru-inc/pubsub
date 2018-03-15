@@ -48,13 +48,14 @@ public class Solace {
     private OkHttpClient httpClient;
     private String sempUrl;
 
-    public void init(String managementHost, Integer managementPort, String vpn, String username, String password) {
+    public void init(String managementHost, Integer managementPort, String vpn, String username, String password, boolean useSecure) {
         this.managementHost = managementHost;
         this.managementPort = managementPort;
         this.username = username;
         this.password = password;
         this.vpn = vpn;
-        sempUrl = "https://" + managementHost + ":" + managementPort + "/SEMP";
+        String scheme = useSecure ? "https" : "http";
+        sempUrl = scheme + "://" + managementHost + ":" + managementPort + "/SEMP";
         ApiClient client = new ApiClient();
         client.setBasePath(sempUrl + "/v2/config");
         client.setUsername(username);
